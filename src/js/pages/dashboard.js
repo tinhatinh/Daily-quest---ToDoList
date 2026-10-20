@@ -107,7 +107,8 @@ function bossSection() {
     ${done ? '' : `<div class="row gap-2" style="margin-top:12px;position:relative;z-index:1">
       <button class="btn btn--sm btn--primary" data-boss-action="toggle" data-id="${boss.id}">${icon('sword')}${i18n.lang === 'en' ? 'Defeat boss' : 'Đánh boss'}</button>
       <button class="btn btn--sm btn--ghost" data-boss-action="reroll">${icon('refresh')}${t('dash.bossReroll')}</button>
-    </div>`}`;
+    </div>`}
+  </div>`;
 }
 
 function questList() {
