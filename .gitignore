@@ -1,0 +1,9 @@
+node_modules/
+dist/
+out/
+*.log
+npm-debug.log*
+.DS_Store
+Thumbs.db
+# du lieu electron build tam (neu chay electron-builder)
+.cache/

@@ -1,0 +1,341 @@
+/*
+ * pet.css - CUA SO MINI "HIEP SI"
+ * -------------------------------
+ * Nen trong suot (transparent window). Hiep si phai 3D o goc duoi-ben-phai,
+ * bam -> hieu ung chem + mo panel to-do mong (glassmorphism) ben trai no.
+ */
+
+/* Mau sac lay bo thong ke tokens/themes (dong bo qua IPC 'theme:state'). */
+:root {
+  --panel: color-mix(in srgb, var(--surface-solid) 82%, transparent);
+  --panel-line: var(--border-strong);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+html,
+body {
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  overflow: hidden;
+  font-family: var(--font-sans);
+  user-select: none;
+  -webkit-app-region: no-drag;
+}
+
+.pet-root {
+  position: fixed;
+  inset: 0;
+}
+
+/* ============================ KNIGHT ============================ */
+.knight {
+  position: absolute;
+  right: 4px;
+  bottom: 4px;
+  width: 116px;
+  height: 130px;
+  perspective: 600px;
+  cursor: pointer;
+  filter: drop-shadow(0 10px 16px rgba(0, 0, 0, 0.5));
+  transition: transform var(--dur-2, 200ms) ease;
+}
+.knight:hover {
+  transform: translateY(-2px) scale(1.03);
+}
+.knight:active {
+  transform: scale(0.97);
+}
+.knight__fig {
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  animation: knightIdle 3.4s ease-in-out infinite;
+}
+@keyframes knightIdle {
+  0%,
+  100% {
+    transform: translateY(0) rotateY(-10deg) rotateX(2deg);
+  }
+  50% {
+    transform: translateY(-6px) rotateY(10deg) rotateX(-2deg);
+  }
+}
+.knight__platform {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 74px;
+  height: 13px;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(0, 0, 0, 0.5), transparent);
+  filter: blur(2px);
+}
+
+/* hieu ung chem: 2 vach sang quat ngang + quang hoa */
+.slash {
+  position: absolute;
+  inset: -22%;
+  border-radius: 50%;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  opacity: 0;
+}
+.slash::before,
+.slash::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  transform: translateX(-55%) rotate(-14deg);
+}
+.slash::before {
+  background: linear-gradient(115deg, transparent 42%, #ffffff 47%, #bfefff 51%, transparent 58%);
+}
+.slash::after {
+  background: linear-gradient(115deg, transparent 44%, color-mix(in srgb, var(--accent) 92%, transparent) 50%, transparent 56%);
+}
+.knight.slashing .slash {
+  animation: slashFx 0.44s ease-out;
+}
+.knight.slashing .slash::before {
+  animation: slashMove 0.44s ease-out;
+}
+.knight.slashing .slash::after {
+  animation: slashMove 0.44s ease-out 0.05s;
+}
+.knight.slashing .knight__fig {
+  animation: knightLunge 0.44s ease-out;
+}
+@keyframes slashFx {
+  0% {
+    opacity: 0;
+  }
+  18% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes slashMove {
+  0% {
+    transform: translateX(-58%) rotate(-14deg);
+  }
+  100% {
+    transform: translateX(58%) rotate(-14deg);
+  }
+}
+@keyframes knightLunge {
+  0% {
+    transform: rotate(0);
+  }
+  30% {
+    transform: rotate(-18deg) scale(1.06);
+  }
+  60% {
+    transform: rotate(7deg);
+  }
+  100% {
+    transform: rotate(0);
+  }
+}
+
+/* huy hieu so to-do con trong */
+.knight__badge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  border-radius: 11px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  color: #fff;
+  font-size: 12px;
+  font-weight: 800;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 4px 10px -2px rgba(255, 110, 199, 0.7);
+}
+
+/* ============================ FLYOUT (to-do mo) ============================ */
+.flyout {
+  position: absolute;
+  right: 4px;
+  bottom: 138px;
+  width: 300px;
+  max-height: 300px;
+  display: flex;
+  flex-direction: column;
+  background: var(--panel);
+  backdrop-filter: blur(16px) saturate(1.2);
+  -webkit-backdrop-filter: blur(16px) saturate(1.2);
+  border: 1px solid var(--panel-line);
+  border-radius: 18px;
+  box-shadow: 0 20px 50px -18px rgba(0, 0, 0, 0.7);
+  overflow: hidden;
+  animation: flyIn 0.22s ease;
+}
+.flyout[hidden] {
+  display: none;
+}
+@keyframes flyIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.97);
+  }
+}
+.flyout__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--panel-line);
+}
+.flyout__title {
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: 0.02em;
+}
+.flyout__count {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--accent-2);
+  background: color-mix(in srgb, var(--accent-2) 16%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent-2) 34%, transparent);
+  border-radius: 999px;
+  padding: 2px 9px;
+}
+.flyout__list {
+  list-style: none;
+  overflow-y: auto;
+  padding: 6px;
+  flex: 1;
+}
+.pf-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 8px;
+  border-radius: 10px;
+  transition: background 0.15s;
+}
+.pf-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+.pf-check {
+  width: 20px;
+  height: 20px;
+  flex: none;
+  border-radius: 50%;
+  border: 2px solid var(--border-strong);
+  display: grid;
+  place-items: center;
+  color: transparent;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.pf-check svg {
+  width: 12px;
+  height: 12px;
+  stroke-width: 3;
+}
+.pf-check.is-done {
+  background: var(--success);
+  border-color: var(--success);
+  color: #fff;
+}
+.pf-text {
+  flex: 1;
+  color: var(--text);
+  font-size: 13px;
+  line-height: 1.35;
+  word-break: break-word;
+}
+.pf-item.is-done .pf-text {
+  text-decoration: line-through;
+  color: var(--muted);
+}
+.pf-del {
+  border: none;
+  background: none;
+  color: var(--muted);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s, color 0.15s;
+  display: grid;
+  place-items: center;
+}
+.pf-item:hover .pf-del {
+  opacity: 1;
+}
+.pf-del:hover {
+  color: var(--danger);
+}
+.pf-empty {
+  padding: 22px 12px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 13px;
+}
+.flyout__add {
+  padding: 8px 10px;
+  border-top: 1px solid var(--panel-line);
+}
+.flyout__add input {
+  width: 100%;
+  background: var(--surface-2);
+  border: 1px solid var(--panel-line);
+  border-radius: 10px;
+  padding: 9px 11px;
+  color: var(--text);
+  font-size: 13px;
+  outline: none;
+}
+.flyout__add input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 28%, transparent);
+}
+.flyout__foot {
+  display: flex;
+  gap: 8px;
+  padding: 10px;
+  border-top: 1px solid var(--panel-line);
+}
+.pf-btn {
+  flex: 1;
+  padding: 8px;
+  border-radius: 10px;
+  border: 1px solid var(--panel-line);
+  background: var(--surface-2);
+  color: var(--text);
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  transition: filter 0.15s, background 0.15s;
+}
+.pf-btn:hover {
+  background: var(--surface-hover);
+}
+.pf-btn--primary {
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  border-color: transparent;
+  color: #fff;
+}
+.pf-btn--primary:hover {
+  filter: brightness(1.08);
+}
+
+/* Long mao hiep si + chi tiet theo accent theme */
+#kPlume stop:first-child {
+  stop-color: var(--accent-2);
+}
+#kPlume stop:last-child {
+  stop-color: var(--accent);
+}

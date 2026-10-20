@@ -1,0 +1,349 @@
+/*
+ * base.css - RESET + BO CUC + NEN
+ * -------------------------------
+ * Nen gradient, layout 3 vung (titlebar / sidebar / main), custom scrollbar,
+ * focus ring de tien nghi (a11y), va cac class bo tri tong quat.
+ */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  font-family: var(--font-sans);
+  font-size: var(--fs-400);
+  line-height: var(--lh-normal);
+  color: var(--text);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow: hidden; /* cua so app, khong scroll body */
+  user-select: none; /* cam chon van ban mac dinh (chot mo o noi dung) */
+  letter-spacing: 0.005em;
+}
+
+/* Nen co 2 quang sang mau (radial) phia sau toan bo ung dung */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(1100px 620px at 12% -8%, var(--bg-glow-1), transparent 60%),
+    radial-gradient(900px 560px at 108% 8%, var(--bg-glow-2), transparent 55%),
+    linear-gradient(180deg, var(--bg), var(--bg-2));
+}
+
+h1,
+h2,
+h3,
+h4 {
+  line-height: var(--lh-tight);
+  font-weight: var(--fw-bold);
+  letter-spacing: -0.01em;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+a {
+  color: var(--accent-2);
+  text-decoration: none;
+}
+
+svg {
+  display: block;
+}
+
+/* ===== Focus ring de nhan dang (a11y) ===== */
+:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+  border-radius: var(--r-xs);
+}
+
+/* ===== Custom scrollbar ===== */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--surface-2);
+  border: 2px solid transparent;
+  border-radius: var(--r-pill);
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--border-strong);
+  background-clip: padding-box;
+}
+
+/* =========================================================================
+   BO CUC UNG DUNG
+   ========================================================================= */
+.app {
+  position: relative;
+  z-index: var(--z-content);
+  display: grid;
+  grid-template-rows: var(--titlebar-h) 1fr;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* ----- Titlebar tu ve (frameless) ----- */
+.titlebar {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  height: var(--titlebar-h);
+  padding: 0 var(--sp-3) 0 var(--sp-4);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent);
+  border-bottom: 1px solid var(--border);
+  -webkit-app-region: drag; /* keo de di chuyen cua so */
+  user-select: none;
+}
+.titlebar__brand {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-weight: var(--fw-bold);
+  font-size: var(--fs-200);
+  color: var(--text-2);
+}
+.titlebar__dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--grad-accent);
+  box-shadow: 0 0 10px var(--accent-soft);
+}
+.titlebar__name {
+  letter-spacing: var(--ls-wide);
+}
+.titlebar__spacer {
+  flex: 1;
+}
+.titlebar__controls {
+  display: flex;
+  -webkit-app-region: no-drag;
+}
+.winbtn {
+  width: 46px;
+  height: var(--titlebar-h);
+  display: grid;
+  place-items: center;
+  color: var(--muted);
+  transition: background var(--dur-1) var(--ease-out), color var(--dur-1);
+}
+.winbtn:hover {
+  background: var(--surface-hover);
+  color: var(--text);
+}
+.winbtn--close:hover {
+  background: var(--danger);
+  color: #fff;
+}
+.winbtn--mini:hover {
+  background: var(--accent-soft);
+  color: var(--accent-2);
+}
+
+/* ----- Shell: sidebar + main ----- */
+.shell {
+  display: grid;
+  grid-template-columns: var(--sidebar-w) 1fr;
+  min-height: 0;
+  transition: grid-template-columns var(--dur-3) var(--ease-out);
+}
+.app.is-collapsed .shell {
+  grid-template-columns: var(--sidebar-w-collapsed) 1fr;
+}
+
+/* ----- Sidebar ----- */
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  padding: var(--sp-4) var(--sp-3);
+  border-right: 1px solid var(--border);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent);
+  min-height: 0;
+  overflow: hidden;
+}
+.sidebar__brand {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-2) var(--sp-2) var(--sp-4);
+  min-height: 44px;
+}
+.brand__logo {
+  display: grid;
+  place-items: center;
+  flex: none;
+  filter: drop-shadow(0 6px 16px rgba(34, 211, 238, 0.35));
+}
+.brand__text {
+  font-weight: var(--fw-black);
+  font-size: var(--fs-500);
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  overflow-y: auto;
+  min-height: 0;
+  padding-right: 2px;
+}
+.sidebar__footer {
+  margin-top: auto;
+  display: flex;
+  padding-top: var(--sp-2);
+}
+
+/* ----- Main column ----- */
+.main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+}
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  padding: var(--sp-4) var(--content-pad);
+  min-height: var(--topbar-h);
+  border-bottom: 1px solid transparent;
+}
+.topbar__heading {
+  min-width: 0;
+}
+.topbar__title {
+  font-size: var(--fs-700);
+  font-weight: var(--fw-black);
+  letter-spacing: -0.02em;
+}
+.topbar__subtitle {
+  color: var(--muted);
+  font-size: var(--fs-300);
+  margin-top: 2px;
+}
+.topbar__stats {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  flex: none;
+}
+
+/* ----- View (noi dung trang) ----- */
+.view {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: var(--sp-2) var(--content-pad) var(--sp-8);
+  user-select: text; /* cho phep chon van ban trong noi dung */
+  scroll-behavior: smooth;
+}
+.view[hidden] {
+  display: none;
+}
+
+/* Transition khi doi trang */
+.view-anim {
+  animation: pageIn var(--dur-3) var(--ease-out);
+}
+@keyframes pageIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* =========================================================================
+   TIEN NGHI BO TRI
+   ========================================================================= */
+.stack {
+  display: flex;
+  flex-direction: column;
+}
+.row {
+  display: flex;
+  align-items: center;
+}
+.wrap {
+  flex-wrap: wrap;
+}
+.gap-1 { gap: var(--sp-1); }
+.gap-2 { gap: var(--sp-2); }
+.gap-3 { gap: var(--sp-3); }
+.gap-4 { gap: var(--sp-4); }
+.gap-5 { gap: var(--sp-5); }
+.grow { flex: 1; }
+.spacer { flex: 1; }
+.center { align-items: center; justify-content: center; }
+.between { justify-content: space-between; }
+.end { justify-content: flex-end; }
+.text-right { text-align: right; }
+.muted { color: var(--muted); }
+.hidden { display: none !important; }
+.nowrap { white-space: nowrap; }
+.truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Luoi card tong quat */
+.grid {
+  display: grid;
+  gap: var(--sp-4);
+}
+.cols-2 { grid-template-columns: repeat(2, 1fr); }
+.cols-3 { grid-template-columns: repeat(3, 1fr); }
+.cols-4 { grid-template-columns: repeat(4, 1fr); }
+@media (max-width: 1180px) {
+  .cols-4 { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 900px) {
+  .cols-2,
+  .cols-3 {
+    grid-template-columns: 1fr;
+  }
+  .topbar { flex-wrap: wrap; }
+}

@@ -1,0 +1,184 @@
+/*
+ * tokens.css - HE THONG THIET KE (Design Tokens)
+ * ----------------------------------------------
+ * Toan bo gia tri dieu chinh duoc dinh nghia o day bang CSS custom properties:
+ * mau sac, kich thuoc (spacing), ban kinh bo goc (radius), bong (shadow),
+ * typography, gradient, duration animation. Cac file CSS khac CHI duoc dung
+ * bien, khong hardcode gia tri -> de dang doi theme / accent.
+ *
+ * Gia tri mac dinh = theme "Dark Neon" (phong cach mockup).
+ * themes.css se ghi de cac bien nay cho Light / Cyberpunk / Forest + accent.
+ */
+
+:root {
+  /* ===== Brand / accent ===== */
+  --accent: #7c5cff;            /* mau nhan chinh (violet) */
+  --accent-2: #22d3ee;          /* mau thu cap (cyan) */
+  --accent-soft: rgba(124, 92, 255, 0.16);
+  --accent-line: rgba(124, 92, 255, 0.42);
+  --accent-contrast: #ffffff;
+
+  /* ===== Background (neon dark) ===== */
+  --bg: #0b0a14;
+  --bg-2: #0f0e1c;
+  --bg-glow-1: rgba(124, 92, 255, 0.16);
+  --bg-glow-2: rgba(34, 211, 238, 0.10);
+  --surface: rgba(255, 255, 255, 0.035);       /* mat card kinh mo */
+  --surface-2: rgba(255, 255, 255, 0.06);
+  --surface-solid: #171628;
+  --surface-hover: rgba(255, 255, 255, 0.08);
+  --elevated: #1c1b30;
+
+  /* ===== Border / line ===== */
+  --border: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.14);
+  --ring: rgba(124, 92, 255, 0.55);
+
+  /* ===== Text ===== */
+  --text: #f4f3fb;
+  --text-2: #c7c5da;
+  --muted: #8f8dab;
+  --faint: #6a6885;
+
+  /* ===== Semantic ===== */
+  --success: #22c98a;
+  --success-2: #10b981;
+  --warning: #f5b342;
+  --danger: #ff5470;
+  --info: #4aa8ff;
+
+  /* ===== Streak / coin / xp (game) ===== */
+  --streak: #ff8a3d;
+  --streak-2: #ff5470;
+  --coin: #ffc94a;
+  --coin-2: #f5a623;
+  --xp: #22d3ee;
+  --xp-2: #5b8cff;
+  --level: #ff6ec7;
+
+  /* ===== Category colors ===== */
+  --cat-health: #2fd39a;
+  --cat-study: #22c8e6;
+  --cat-work: #9b8cff;
+  --cat-growth: #f56bb0;
+  --cat-life: #f5b83d;
+  --cat-social: #6ea8ff;
+  --cat-finance: #4fd1a5;
+  --cat-default: #8f8dab;
+
+  /* ===== Difficulty colors ===== */
+  --diff-easy: #8f9bb3;
+  --diff-normal: #5b9dff;
+  --diff-hard: #a97bff;
+  --diff-epic: #ff5470;
+
+  /* ===== Typography ===== */
+  --font-sans: "Be Vietnam Pro", "Segoe UI Variable", "Segoe UI", system-ui,
+    -apple-system, Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+  --font-mono: "JetBrains Mono", "Cascadia Code", "Consolas", ui-monospace,
+    SFMono-Regular, Menlo, monospace;
+
+  --fs-100: 0.72rem;
+  --fs-200: 0.8rem;
+  --fs-300: 0.9rem;
+  --fs-400: 1rem;
+  --fs-500: 1.15rem;
+  --fs-600: 1.4rem;
+  --fs-700: 1.8rem;
+  --fs-800: 2.3rem;
+  --fs-900: 3rem;
+
+  --fw-regular: 400;
+  --fw-medium: 500;
+  --fw-semibold: 600;
+  --fw-bold: 700;
+  --fw-black: 800;
+
+  --lh-tight: 1.12;
+  --lh-normal: 1.5;
+  --lh-loose: 1.7;
+
+  --ls-wide: 0.06em;
+
+  /* ===== Spacing scale (4px base) ===== */
+  --sp-0: 0px;
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 20px;
+  --sp-6: 24px;
+  --sp-7: 32px;
+  --sp-8: 40px;
+  --sp-9: 56px;
+  --sp-10: 72px;
+
+  /* ===== Radius ===== */
+  --r-xs: 8px;
+  --r-sm: 12px;
+  --r-md: 16px;
+  --r-lg: 22px;
+  --r-xl: 28px;
+  --r-pill: 999px;
+
+  /* ===== Shadow (nhiều lớp) ===== */
+  --sh-1: 0 1px 2px rgba(0, 0, 0, 0.28);
+  --sh-2: 0 6px 18px -8px rgba(0, 0, 0, 0.55), 0 2px 6px rgba(0, 0, 0, 0.32);
+  --sh-3: 0 18px 44px -14px rgba(0, 0, 0, 0.66), 0 6px 16px rgba(0, 0, 0, 0.4);
+  --sh-glow: 0 0 0 1px var(--accent-line), 0 10px 40px -12px var(--accent-soft);
+  --sh-inset: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+
+  /* ===== Gradients ===== */
+  --grad-brand: linear-gradient(135deg, #5b8cff, #22d3ee);
+  --grad-accent: linear-gradient(135deg, var(--accent), var(--accent-2));
+  --grad-xp: linear-gradient(90deg, #22d3ee, #5b8cff);
+  --grad-coin: linear-gradient(135deg, #ffd76b, #f5a623);
+  --grad-streak: linear-gradient(135deg, #ffb15c, #ff5470);
+  --grad-level: linear-gradient(135deg, #ff6ec7, #a97bff);
+  --grad-boss: linear-gradient(150deg, rgba(155, 60, 120, 0.55), rgba(90, 40, 120, 0.35));
+  --grad-surface: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
+
+  /* ===== Layout sizes ===== */
+  --titlebar-h: 40px;
+  --sidebar-w: 244px;
+  --sidebar-w-collapsed: 76px;
+  --topbar-h: 84px;
+  --content-pad: 26px;
+
+  /* ===== Motion ===== */
+  --dur-1: 120ms;
+  --dur-2: 200ms;
+  --dur-3: 320ms;
+  --dur-4: 520ms;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* ===== Z-index ===== */
+  --z-content: 1;
+  --z-topbar: 20;
+  --z-dropdown: 40;
+  --z-toast: 60;
+  --z-palette: 70;
+  --z-modal: 80;
+  --z-levelup: 90;
+  --z-fx: 100;
+}
+
+/* Khuyen nghi giam chuyen dong cua he dieu hanh -> lam mong animation */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-1: 1ms;
+    --dur-2: 1ms;
+    --dur-3: 1ms;
+    --dur-4: 1ms;
+  }
+}
+
+/* Lop .reduced-motion (nguoi dung bat trong Cai dat) cung lam mong animation */
+.reduced-motion * {
+  animation-duration: 1ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 1ms !important;
+  scroll-behavior: auto !important;
+}

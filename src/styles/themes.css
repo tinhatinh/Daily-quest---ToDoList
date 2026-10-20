@@ -1,0 +1,183 @@
+/*
+ * themes.css - BIEN THE THEME + ACCENT
+ * ------------------------------------
+ * Mac dinh (Dark Neon) nam trong tokens.css. O day chi GHI DE cac bien khi
+ * <html data-theme="..."> hoac <html data-accent="..."> thay doi.
+ * Nguoi dung co the tu chon accent mau (custom) trong Cai dat.
+ */
+
+/* ===== Category / difficulty pill colors (dung cho moi theme) ===== */
+.cat-health { --c: var(--cat-health); }
+.cat-study { --c: var(--cat-study); }
+.cat-work { --c: var(--cat-work); }
+.cat-growth { --c: var(--cat-growth); }
+.cat-life { --c: var(--cat-life); }
+.cat-social { --c: var(--cat-social); }
+.cat-finance { --c: var(--cat-finance); }
+.cat-default { --c: var(--cat-default); }
+
+.diff-easy { --c: var(--diff-easy); }
+.diff-normal { --c: var(--diff-normal); }
+.diff-hard { --c: var(--diff-hard); }
+.diff-epic { --c: var(--diff-epic); }
+
+/* Pill dung bien --c o tren: nen trong + chu mau */
+.pill--cat,
+.pill--diff {
+  color: var(--c);
+  background: color-mix(in srgb, var(--c) 16%, transparent);
+  border: 1px solid color-mix(in srgb, var(--c) 34%, transparent);
+}
+
+/* =========================================================================
+   THEME: LIGHT (sang, sach se, van giu chat "game")
+   ========================================================================= */
+[data-theme="light"] {
+  --accent: #6d4aff;
+  --accent-2: #0ea5c4;
+  --accent-soft: rgba(109, 74, 255, 0.12);
+  --accent-line: rgba(109, 74, 255, 0.35);
+
+  --bg: #eef0f8;
+  --bg-2: #e7e9f4;
+  --bg-glow-1: rgba(109, 74, 255, 0.1);
+  --bg-glow-2: rgba(14, 165, 196, 0.08);
+  --surface: rgba(255, 255, 255, 0.72);
+  --surface-2: rgba(20, 20, 45, 0.05);
+  --surface-solid: #ffffff;
+  --surface-hover: rgba(255, 255, 255, 0.95);
+  --elevated: #ffffff;
+
+  --border: rgba(20, 20, 45, 0.1);
+  --border-strong: rgba(20, 20, 45, 0.16);
+  --ring: rgba(109, 74, 255, 0.5);
+
+  --text: #171628;
+  --text-2: #40405c;
+  --muted: #6a6a86;
+  --faint: #9a9ab2;
+
+  --success: #12a877;
+  --warning: #d98a1f;
+  --danger: #e23a58;
+  --info: #2b7fe0;
+
+  --surface-solid: #ffffff;
+  --sh-2: 0 6px 18px -10px rgba(30, 30, 70, 0.28), 0 2px 6px rgba(30, 30, 70, 0.12);
+  --sh-3: 0 18px 44px -16px rgba(30, 30, 70, 0.32), 0 6px 16px rgba(30, 30, 70, 0.14);
+  --sh-inset: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+[data-theme="light"] body::before {
+  background:
+    radial-gradient(1100px 620px at 12% -8%, var(--bg-glow-1), transparent 60%),
+    radial-gradient(900px 560px at 108% 8%, var(--bg-glow-2), transparent 55%),
+    linear-gradient(180deg, #f4f5fb, #e9ebf5);
+}
+[data-theme="light"] .card {
+  backdrop-filter: blur(10px);
+}
+
+/* =========================================================================
+   THEME: CYBERPUNK (neon manh, hong/xanh luc, contrast cao)
+   ========================================================================= */
+[data-theme="cyberpunk"] {
+  --accent: #ff2d95;
+  --accent-2: #00f0ff;
+  --accent-soft: rgba(255, 45, 149, 0.18);
+  --accent-line: rgba(255, 45, 149, 0.5);
+  --ring: rgba(0, 240, 255, 0.6);
+
+  --bg: #07060f;
+  --bg-2: #0b0718;
+  --bg-glow-1: rgba(255, 45, 149, 0.2);
+  --bg-glow-2: rgba(0, 240, 255, 0.14);
+  --surface: rgba(255, 255, 255, 0.04);
+  --surface-2: rgba(0, 240, 255, 0.08);
+  --surface-solid: #120c22;
+  --surface-hover: rgba(255, 45, 149, 0.12);
+  --elevated: #150e28;
+
+  --text: #f6ecff;
+  --text-2: #cbb8e8;
+  --muted: #9b83bd;
+  --faint: #6f5a8c;
+
+  --success: #23ffb0;
+  --warning: #ffcc00;
+  --danger: #ff3b5c;
+  --info: #00d4ff;
+
+  --cat-health: #23ffb0;
+  --cat-study: #00d4ff;
+  --cat-work: #b06bff;
+  --cat-growth: #ff2d95;
+  --cat-life: #ffcc00;
+  --cat-social: #57a8ff;
+  --cat-finance: #23ffb0;
+
+  --grad-accent: linear-gradient(135deg, #ff2d95, #7a2bff);
+  --grad-xp: linear-gradient(90deg, #00f0ff, #b06bff);
+  --grad-level: linear-gradient(135deg, #00f0ff, #ff2d95);
+  --sh-glow: 0 0 0 1px var(--accent-line), 0 0 40px -6px rgba(255, 45, 149, 0.5);
+}
+
+/* =========================================================================
+   THEME: FOREST (xan la cay, diu, am cung)
+   ========================================================================= */
+[data-theme="forest"] {
+  --accent: #3fa66a;
+  --accent-2: #b6e04a;
+  --accent-soft: rgba(63, 166, 106, 0.16);
+  --accent-line: rgba(63, 166, 106, 0.42);
+  --ring: rgba(182, 224, 74, 0.5);
+
+  --bg: #0b1410;
+  --bg-2: #0e1a14;
+  --bg-glow-1: rgba(63, 166, 106, 0.16);
+  --bg-glow-2: rgba(182, 224, 74, 0.08);
+  --surface: rgba(255, 255, 255, 0.04);
+  --surface-2: rgba(255, 255, 255, 0.07);
+  --surface-solid: #14231b;
+  --surface-hover: rgba(255, 255, 255, 0.09);
+  --elevated: #17281f;
+
+  --text: #eef7ef;
+  --text-2: #c2d6c6;
+  --muted: #86a18b;
+  --faint: #5f7a66;
+
+  --success: #4bd07f;
+  --warning: #e0b64a;
+  --danger: #e0654a;
+  --info: #6bc0e0;
+
+  --cat-health: #4bd07f;
+  --cat-study: #6bc0e0;
+  --cat-work: #b6e04a;
+  --cat-growth: #e08bb0;
+  --cat-life: #e0b64a;
+  --cat-social: #7fb6e0;
+  --cat-finance: #4bd07f;
+
+  --grad-accent: linear-gradient(135deg, #3fa66a, #b6e04a);
+  --grad-xp: linear-gradient(90deg, #b6e04a, #3fa66a);
+  --grad-level: linear-gradient(135deg, #b6e04a, #4bd07f);
+}
+
+/* =========================================================================
+   ACCENT VARIANTS (ap dung moi theme khi nguoi dung chon mau nhan)
+   ========================================================================= */
+[data-accent="violet"] { --accent: #7c5cff; --accent-2: #22d3ee; }
+[data-accent="blue"] { --accent: #3b82f6; --accent-2: #22d3ee; }
+[data-accent="cyan"] { --accent: #06b6d4; --accent-2: #38bdf8; }
+[data-accent="green"] { --accent: #22c55e; --accent-2: #a3e635; }
+[data-accent="amber"] { --accent: #f59e0b; --accent-2: #fbbf24; }
+[data-accent="pink"] { --accent: #ec4899; --accent-2: #f472b6; }
+[data-accent="red"] { --accent: #ef4444; --accent-2: #fb923c; }
+
+/* Accent tu doan (custom) - renderer set cac inline var tren <html>.
+   Cac bien --accent-soft / --accent-line duoc tinh lai o day neu can. */
+[data-accent="custom"] {
+  --accent: var(--custom-accent, #7c5cff);
+  --accent-2: var(--custom-accent-2, #22d3ee);
+}

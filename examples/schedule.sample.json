@@ -1,0 +1,116 @@
+{
+  "version": 2,
+  "schedule": [
+    {
+      "id": "s_001",
+      "title": "Chạy bộ",
+      "start": "07:00",
+      "end": "08:00",
+      "days": [1, 2, 3, 4, 5],
+      "category": "health",
+      "linkedQuestId": "q_001",
+      "note": "Công viên gần nhà",
+      "reminderMinutes": 5
+    },
+    {
+      "id": "s_002",
+      "title": "Deep work",
+      "start": "09:00",
+      "end": "12:00",
+      "days": [1, 2, 3, 4, 5],
+      "category": "work",
+      "linkedQuestId": "",
+      "note": "Tắt thông báo, tập trung cao độ",
+      "reminderMinutes": 0
+    },
+    {
+      "id": "s_003",
+      "title": "Ăn trưa",
+      "start": "12:00",
+      "end": "13:00",
+      "days": [0, 1, 2, 3, 4, 5, 6],
+      "category": "life",
+      "linkedQuestId": "",
+      "note": "",
+      "reminderMinutes": 0
+    },
+    {
+      "id": "s_004",
+      "title": "Học tiếng Anh",
+      "start": "14:00",
+      "end": "15:30",
+      "days": [1, 3, 5],
+      "category": "study",
+      "linkedQuestId": "q_002",
+      "note": "Ôn từ vựng unit 5",
+      "reminderMinutes": 10
+    },
+    {
+      "id": "s_005",
+      "title": "Gym",
+      "start": "17:00",
+      "end": "18:00",
+      "days": [2, 4, 6],
+      "category": "health",
+      "linkedQuestId": "q_001",
+      "note": "Bài tập chân + tay",
+      "reminderMinutes": 10
+    },
+    {
+      "id": "s_006",
+      "title": "Đọc sách",
+      "start": "19:00",
+      "end": "20:00",
+      "days": [0, 1, 2, 3, 4, 5, 6],
+      "category": "growth",
+      "linkedQuestId": "q_004",
+      "note": "",
+      "reminderMinutes": 5
+    },
+    {
+      "id": "s_007",
+      "title": "Lớp Toán cao cấp",
+      "start": "18:00",
+      "end": "19:30",
+      "category": "study",
+      "note": "Cả tháng 10/2026, thứ 2 & 4 (kiểu Google Calendar: repeat weekly + until)",
+      "reminderMinutes": 15,
+      "startDate": "2026-10-05",
+      "endDate": "2026-10-31",
+      "repeat": { "freq": "weekly", "interval": 1, "byWeekdays": [2, 4] }
+    },
+    {
+      "id": "s_008",
+      "title": "Ôn thi cuối kỳ",
+      "start": "20:00",
+      "end": "21:30",
+      "category": "study",
+      "note": "Mỗi ngày từ 01/12 đến 15/12 (repeat daily)",
+      "reminderMinutes": 10,
+      "startDate": "2026-12-01",
+      "endDate": "2026-12-15",
+      "repeat": { "freq": "daily", "interval": 1 }
+    },
+    {
+      "id": "s_009",
+      "title": "Họp lớp",
+      "start": "19:00",
+      "end": "20:30",
+      "category": "social",
+      "note": "Chỉ 2 ngày cụ thể trong tháng (dates = RDATE)",
+      "reminderMinutes": 30,
+      "dates": ["2026-10-12", "2026-10-26"]
+    },
+    {
+      "id": "s_010",
+      "title": "Nộp tiền thuê phòng",
+      "start": "09:00",
+      "end": "09:30",
+      "category": "finance",
+      "note": "Ngày 5 hàng tháng (repeat monthly)",
+      "reminderMinutes": 60,
+      "startDate": "2026-10-05",
+      "repeat": { "freq": "monthly", "interval": 1, "byMonthDays": [5] }
+    }
+  ]
+}
