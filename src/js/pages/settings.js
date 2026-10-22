@@ -11,7 +11,10 @@ import { store, createDefaultState } from '../store.js';
 import { applyTheme } from '../theme.js';
 import { router } from '../router.js';
 import { i18n, t } from '../i18n.js';
-import { THEMES, ACCENT_SWATCHES, LANGUAGES, XP_DIFFICULTY, SHORTCUTS } from '../constants.js';
+import { THEMES, HERO_FX_LEVELS, LANGUAGES, XP_DIFFICULTY, SHORTCUTS } from '../constants.js';
+import { HEROES, getHero, heroRank } from '../heroes.js';
+import { getLevelInfo } from '../gamification.js';
+import { heroPortrait, playSmash, playBanner, playRankUp, refreshHeroImages, heroImageStatus, villainImageAvailable } from '../heroArt.js';
 import { escapeHtml } from '../utils.js';
 import { icon } from '../icons.js';
 import { audio } from '../audio.js';
@@ -41,6 +44,41 @@ function row(label, hint, control) {
   </div>`;
 }
 
+/** The chon anh hung: tuong nho + ten + bi danh (All Might dung thu nhat). */
+function heroPickerHtml(s) {
+  const lang = i18n.lang;
+  const cards = Object.values(HEROES)
+    .map(
+      (h) => `
+    <button type="button" class="hero-card ${s.heroStyle === h.id ? 'is-active' : ''}" data-hero="${h.id}" style="--hc:${h.colors.accent}">
+      ${heroPortrait(h.id, { size: 84, mood: s.heroStyle === h.id ? 'cheer' : 'idle' })}
+      <div class="hero-card__name">${escapeHtml(lang === 'en' ? h.en : h.vi)}</div>
+      <div class="hero-card__alias">${escapeHtml(lang === 'en' ? h.aliasEn : h.aliasVi)}</div>
+    </button>`
+    )
+    .join('');
+  const custom = `
+    <button type="button" class="hero-card hero-card--custom ${s.heroStyle === 'custom' ? 'is-active' : ''}" data-hero="custom" style="--hc:${escapeHtml(s.customAccent)}">
+      <span class="hero-card__swatch" style="background:linear-gradient(135deg, ${escapeHtml(s.customAccent)}, ${escapeHtml(s.customAccent2)})">${icon('palette', { size: 22 })}</span>
+      <div class="hero-card__name">${escapeHtml(t('hero.custom'))}</div>
+      <div class="hero-card__alias">${escapeHtml(lang === 'en' ? 'Your own suit' : 'Bộ đồ của bạn')}</div>
+    </button>`;
+  return cards + custom;
+}
+
+/** Trang thai anh that tung hero (co anh -> hien so luong, khong -> SVG). */
+function photoStatusHtml() {
+  const ids = [...Object.keys(HEROES), 'villain'];
+  return ids
+    .map((id) => {
+      const n = id === 'villain' ? (villainImageAvailable() ? 1 : 0) : heroImageStatus(id);
+      const h = getHero(id);
+      const label = id === 'villain' ? t('hero.villainLabel') : i18n.lang === 'en' ? h.en : h.vi;
+      return `<span class="hps ${n ? 'is-on' : ''}"><i>${escapeHtml(label)}</i><b>${n ? n + ' ' + t('hero.photoCount') : t('hero.photoSvg')}</b></span>`;
+    })
+    .join('');
+}
+
 export const settingsPage = {
   id: 'settings',
   icon: 'settings',
@@ -67,10 +105,36 @@ export const settingsPage = {
             ${Object.entries(THEMES).map(([id, th]) => `<button class="swatch ${s.theme === id ? 'is-active' : ''}" data-theme="${id}" style="background:${th.preview}"><span class="swatch__name">${escapeHtml(lang === 'en' ? th.en : th.vi)}</span></button>`).join('')}
           </div>
         </div>
-        <div class="field"><label class="field__label">${t('set.accent')}</label>
-          <div class="accent-dots" id="set-accents">
-            ${ACCENT_SWATCHES.map((a) => `<button class="accent-dot ${s.accent === a.id ? 'is-active' : ''}" data-accent="${a.id}" style="background:${a.color}" aria-label="${a.id}"></button>`).join('')}
-            <label class="accent-dot accent-dot--custom ${s.accent === 'custom' ? 'is-active' : ''}" data-tip="${lang === 'en' ? 'Custom' : 'Tùy chỉnh'}">${icon('plus', { size: 14 })}<input type="color" id="set-custom" value="${escapeHtml(s.customAccent)}" /></label>
+        <div class="field" style="margin-bottom:14px"><label class="field__label">${t('hero.style')}</label>
+          <div class="set-row__hint" style="margin-bottom:8px">${t('hero.styleHint')}</div>
+          <div class="hero-picker" id="set-heroes">${heroPickerHtml(s)}</div>
+        </div>
+        <div class="field" style="margin-bottom:14px">
+          <label class="field__label">${t('hero.photoTitle')}</label>
+          <div class="set-row__hint" style="margin-bottom:8px">${t('hero.photoHint')}</div>
+          <div class="hero-photo-status" id="set-photo-status">${photoStatusHtml()}</div>
+          <div class="row gap-2 wrap" style="margin-top:10px">
+            <button class="btn btn--sm btn--primary" id="set-photo-open">${icon('folder')}${t('hero.photoOpen')}</button>
+            <button class="btn btn--sm btn--ghost" id="set-photo-reload">${icon('refresh')}${t('hero.photoReload')}</button>
+          </div>
+          <div class="set-row__hint" id="set-photo-dir" style="margin-top:8px;font-family:var(--font-mono);font-size:var(--fs-100);word-break:break-all"></div>
+        </div>
+        <div class="field ${s.heroStyle === 'custom' ? '' : 'hidden'}" id="set-custom-field">
+          <label class="field__label">${t('set.accent')}</label>
+          <div class="set-row__hint" style="margin-bottom:8px">${t('hero.customHint')}</div>
+          <div class="row gap-3 wrap">
+            <label class="color-pick">${t('hero.custom')} 1<input type="color" id="set-custom" value="${escapeHtml(s.customAccent)}" /></label>
+            <label class="color-pick">${t('hero.custom')} 2<input type="color" id="set-custom2" value="${escapeHtml(s.customAccent2)}" /></label>
+          </div>
+        </div>
+        <div class="set-row" style="border-top:1px solid var(--border);margin-top:14px;padding-top:14px">
+          <div class="set-row__info"><div class="set-row__label">${t('hero.fx')}</div><div class="set-row__hint">${t('hero.fxHint')}</div></div>
+          <div class="row gap-2">
+            <select class="select" id="set-hero-fx" style="width:auto">
+              ${Object.entries(HERO_FX_LEVELS).map(([id, o]) => `<option value="${id}" ${((s.heroFx || 'full') === id) ? 'selected' : ''}>${escapeHtml(lang === 'en' ? o.en : o.vi)}</option>`).join('')}
+            </select>
+            <button class="btn btn--sm btn--subtle" id="set-fx-test">${icon('burst')}${t('hero.fxTest')}</button>
+            <button class="btn btn--sm btn--subtle" id="set-rank-test">${icon('badge')}${t('hero.rankTest')}</button>
           </div>
         </div>
         <div class="set-row" style="border-top:1px solid var(--border);margin-top:14px;padding-top:14px">
@@ -142,20 +206,70 @@ export const settingsPage = {
       setSetting('theme', b.dataset.theme);
       view.querySelectorAll('#set-themes .swatch').forEach((x) => x.classList.toggle('is-active', x === b));
     });
-    // ---- accents ----
-    view.querySelector('#set-accents').addEventListener('click', (e) => {
-      const b = e.target.closest('[data-accent]');
+    // ---- hero style ----
+    view.querySelector('#set-heroes').addEventListener('click', (e) => {
+      const b = e.target.closest('[data-hero]');
       if (!b) return;
-      setSetting('accent', b.dataset.accent);
-      view.querySelectorAll('.accent-dot').forEach((x) => x.classList.toggle('is-active', x === b));
+      setSetting('heroStyle', b.dataset.hero);
+      audio.play('ultra');
+      router.refresh(); // ve lai de cap nhat tuong anh hung o cai khac
     });
-    view.querySelector('#set-custom').addEventListener('input', (e) => {
-      store.update((d) => {
-        d.settings.accent = 'custom';
-        d.settings.customAccent = e.target.value;
-      }, { undoable: false, reason: 'settings' });
+    const applyCustom = (key, value) => {
+      store.update(
+        (d) => {
+          d.settings.heroStyle = 'custom';
+          d.settings[key] = value;
+        },
+        { undoable: false, reason: 'settings' }
+      );
       applyTheme(store.state);
-      view.querySelectorAll('.accent-dot').forEach((x) => x.classList.toggle('is-active', x.classList.contains('accent-dot--custom')));
+    };
+    view.querySelector('#set-custom')?.addEventListener('input', (e) => applyCustom('customAccent', e.target.value));
+    view.querySelector('#set-custom2')?.addEventListener('input', (e) => applyCustom('customAccent2', e.target.value));
+    // ---- cuong do hieuung + chay thu ----
+    bindSelect(view, '#set-hero-fx', (v) => setSetting('heroFx', v));
+    view.querySelector('#set-fx-test')?.addEventListener('click', (e) => {
+      const r = e.currentTarget.getBoundingClientRect();
+      const heroId = store.state.settings.heroStyle || 'allmight';
+      const hero = getHero(heroId);
+      audio.play(hero.sfx || 'smash');
+      playSmash({ x: r.left + r.width / 2, y: innerHeight * 0.42, hero: heroId, power: 1.6 });
+      setTimeout(() => {
+        audio.play('ultra');
+        playBanner(lang === 'en' ? hero.ultraEn : hero.ultraVi, hero.heroName, heroId);
+      }, 420);
+    });
+    view.querySelector('#set-rank-test')?.addEventListener('click', () => {
+      const info = getLevelInfo(store.state);
+      const rank = heroRank(info.level, lang);
+      const heroId = store.state.settings.heroStyle || 'allmight';
+      audio.play('rankUp');
+      playRankUp({ level: info.level, rank: rank.label, tier: rank.tier, hero: heroId });
+    });
+    // ---- anh that cho hero (thu muc cuc bo) ----
+    const dirEl = view.querySelector('#set-photo-dir');
+    const showDir = (dir) => {
+      if (dirEl) dirEl.textContent = dir || '';
+    };
+    if (window.api.heroesList) {
+      window.api
+        .heroesList()
+        .then((r) => showDir(r && r.dir))
+        .catch(() => {});
+    }
+    view.querySelector('#set-photo-open')?.addEventListener('click', async () => {
+      const r = await window.api.heroesOpenFolder();
+      if (r && r.ok) {
+        showDir(r.path);
+        toast({ type: 'success', title: t('hero.photoOpen'), msg: r.path, iconName: 'folder' });
+      } else {
+        toast({ type: 'error', title: t('hero.photoOpen'), msg: (r && r.error) || '', iconName: 'alert' });
+      }
+    });
+    view.querySelector('#set-photo-reload')?.addEventListener('click', async () => {
+      await refreshHeroImages();
+      audio.play('achievement');
+      router.refresh();
     });
     // ---- selects ----
     bindSelect(view, '#set-lang', (v) => setSetting('language', v));

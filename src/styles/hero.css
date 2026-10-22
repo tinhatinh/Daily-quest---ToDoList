@@ -1,0 +1,1882 @@
+/*
+ * hero.css - LOP MY THUAT MY HERO ACADEMIA
+ * ----------------------------------------
+ * Gom: nen thanh phoi dong dang (heroBg), tuong anh hero (hoat hoa nhip
+ * nhang + nhat mat), aura One For All theo streak, the boss villain, va toan
+ * bo lop hieu ung chien dau (#heroFx: chanh, song kich, toc do, chu comic,
+ * banner, rank-up card, dong "SMASHED").
+ *
+ * Mau sac lay tu CSS var --hero-* do heroArt.setHeroVars() ghi len :root.
+ * File nay duoc tai CUOI CUNG de duoc quyen uu tien.
+ */
+
+/* =========================================================================
+   1. NEN ANH HUNG (#heroBg)
+   ========================================================================= */
+:root {
+  /* Font "comic" cho chu no - Fall back de ki tu tieng Viet khong bi o */
+  --font-comic: Impact, 'Haettenschweiler', 'Franklin Gothic Bold', 'Arial Black', var(--font-sans);
+}
+#heroBg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  --stage: 0.55; /* do noi cua nen, doi theo theme */
+}
+[data-theme='light'] #heroBg {
+  --stage: 0.42;
+}
+[data-theme='academia'] #heroBg {
+  --stage: 0.85;
+}
+[data-theme='nightwatch'] #heroBg {
+  --stage: 0.7;
+}
+
+/* Bau troi + bung sang phia sau */
+.hb-sky {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(70% 50% at 50% 108%, var(--hero-glow), transparent 70%),
+    radial-gradient(46% 34% at 78% 6%, var(--hero-accent), transparent 68%),
+    linear-gradient(180deg, var(--hero-ink), transparent 62%);
+  opacity: calc(0.24 * var(--stage));
+  transition: opacity var(--dur-4) var(--ease-out);
+}
+
+/* Bun tia sang phat ra tu giua (che' do All Might) */
+.hb-rays {
+  position: absolute;
+  left: 50%;
+  top: -46%;
+  width: 150vmax;
+  height: 150vmax;
+  transform: translateX(-50%);
+  background: repeating-conic-gradient(
+    from 0deg at 50% 50%,
+    color-mix(in srgb, var(--hero-accent) 40%, transparent) 0deg 3deg,
+    transparent 3deg 12deg
+  );
+  -webkit-mask-image: radial-gradient(closest-side at 50% 42%, #000 8%, transparent 62%);
+  mask-image: radial-gradient(closest-side at 50% 42%, #000 8%, transparent 62%);
+  opacity: 0;
+  animation: heroRays 90s linear infinite;
+  transition: opacity var(--dur-4);
+}
+[data-hero='allmight'] .hb-rays {
+  opacity: calc(0.16 * var(--stage));
+}
+[data-hero='midoriya'] .hb-rays,
+[data-hero='bakugo'] .hb-rays {
+  opacity: calc(0.1 * var(--stage));
+}
+@keyframes heroRays {
+  to {
+    transform: translateX(-50%) rotate(360deg);
+  }
+}
+
+/* Mây trôi */
+.hb-clouds {
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 62%;
+}
+.hb-cloud {
+  position: absolute;
+  height: 46px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--hero-line) 60%, #fff);
+  filter: blur(14px);
+  opacity: calc(0.12 * var(--stage));
+  animation: heroCloud linear infinite;
+}
+.hb-cloud::before,
+.hb-cloud::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  background: inherit;
+}
+.hb-cloud::before {
+  width: 60%;
+  height: 170%;
+  left: 12%;
+  top: -90%;
+}
+.hb-cloud::after {
+  width: 44%;
+  height: 130%;
+  right: 12%;
+  top: -60%;
+}
+.hb-cloud.c1 {
+  width: 260px;
+  top: 8%;
+  animation-duration: 116s;
+}
+.hb-cloud.c2 {
+  width: 180px;
+  top: 24%;
+  animation-duration: 152s;
+  animation-delay: -40s;
+  opacity: calc(0.08 * var(--stage));
+}
+.hb-cloud.c3 {
+  width: 320px;
+  top: 2%;
+  animation-duration: 188s;
+  animation-delay: -96s;
+  opacity: calc(0.06 * var(--stage));
+}
+@keyframes heroCloud {
+  from {
+    transform: translateX(-360px);
+  }
+  to {
+    transform: translateX(calc(100vw + 360px));
+  }
+}
+
+/* Duong chan troi: 2 lop parallax */
+.hb-city {
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 46%;
+  min-height: 190px;
+}
+.hb-city svg {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+.hb-far {
+  fill: color-mix(in srgb, var(--hero-suit) 70%, #000);
+  opacity: calc(0.14 * var(--stage));
+  animation: heroSway 78s ease-in-out infinite alternate;
+}
+.hb-near {
+  fill: color-mix(in srgb, var(--hero-ink) 82%, #000);
+  opacity: calc(0.2 * var(--stage));
+  animation: heroSway 54s ease-in-out infinite alternate-reverse;
+}
+.hb-win rect {
+  fill: var(--hero-accent);
+  opacity: 0.55;
+  animation: heroWindow 6.5s steps(1, end) infinite;
+}
+.hb-win rect:nth-child(2n) {
+  animation-delay: -2.1s;
+}
+.hb-win rect:nth-child(3n) {
+  animation-delay: -4.4s;
+}
+@keyframes heroWindow {
+  0%,
+  62% {
+    opacity: 0.55;
+  }
+  63%,
+  100% {
+    opacity: 0.08;
+  }
+}
+@keyframes heroSway {
+  from {
+    transform: translateX(-1.4%) scale(1.02);
+  }
+  to {
+    transform: translateX(1.4%) scale(1.02);
+  }
+}
+
+/* Bui / hat năng lượng lơ lửng */
+.hb-dust i {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--hero-accent);
+  opacity: 0;
+  box-shadow: 0 0 10px var(--hero-accent);
+  animation: heroDust 15s ease-in-out infinite;
+}
+.hb-dust i:nth-child(1) {
+  left: 8%;
+  animation-delay: 0s;
+}
+.hb-dust i:nth-child(2) {
+  left: 21%;
+  animation-delay: -2.4s;
+}
+.hb-dust i:nth-child(3) {
+  left: 34%;
+  animation-delay: -5.1s;
+}
+.hb-dust i:nth-child(4) {
+  left: 47%;
+  animation-delay: -7.3s;
+}
+.hb-dust i:nth-child(5) {
+  left: 59%;
+  animation-delay: -9.6s;
+}
+.hb-dust i:nth-child(6) {
+  left: 72%;
+  animation-delay: -11.2s;
+}
+.hb-dust i:nth-child(7) {
+  left: 85%;
+  animation-delay: -13s;
+}
+.hb-dust i:nth-child(8) {
+  left: 94%;
+  animation-delay: -3.6s;
+}
+@keyframes heroDust {
+  0% {
+    transform: translateY(30vh) scale(0.6);
+    opacity: 0;
+  }
+  12%,
+  70% {
+    opacity: calc(0.5 * var(--stage));
+  }
+  100% {
+    transform: translateY(-70vh) scale(1.3);
+    opacity: 0;
+  }
+}
+
+/* Net mo o goi de noi bat noi dung */
+.hb-vignette {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(120% 90% at 50% 0%, transparent 52%, var(--hero-ink) 130%),
+    linear-gradient(180deg, transparent 58%, color-mix(in srgb, var(--hero-ink) 70%, transparent));
+  opacity: calc(0.5 * var(--stage));
+}
+
+/* --- Cac hieu ung dac trung theo hero (lop phu tren nen) --- */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--dur-4);
+}
+[data-hero='midoriya'] body::after,
+body.aura-1::after {
+  opacity: 0;
+}
+/* Bakugo: than lua leo len tu day man hinh */
+[data-hero='bakugo'] #heroBg .hb-vignette {
+  background:
+    radial-gradient(80% 46% at 50% 118%, color-mix(in srgb, var(--hero-accent) 55%, transparent), transparent 70%),
+    linear-gradient(180deg, transparent 58%, color-mix(in srgb, var(--hero-ink) 70%, transparent));
+}
+/* Todoroki: nua bang nua lua */
+[data-hero='todoroki'] #heroBg .hb-sky {
+  background:
+    linear-gradient(102deg, color-mix(in srgb, var(--hero-accent) 45%, transparent) 0%, transparent 46%),
+    linear-gradient(258deg, color-mix(in srgb, var(--hero-accent-2) 45%, transparent) 0%, transparent 46%),
+    radial-gradient(70% 50% at 50% 108%, var(--hero-glow), transparent 70%);
+  opacity: calc(0.3 * var(--stage));
+}
+/* Uraraka: qua bong trong luc bay */
+[data-hero='uraraka'] #heroBg .hb-dust i {
+  width: 16px;
+  height: 16px;
+  background: transparent;
+  border: 2px solid var(--hero-accent);
+  box-shadow: inset 0 0 10px color-mix(in srgb, var(--hero-accent) 60%, transparent);
+}
+/* Eraser Head: suong dem + net quet */
+[data-hero='aizawa'] #heroBg .hb-rays {
+  opacity: 0;
+}
+[data-hero='aizawa'] #heroBg .hb-city {
+  filter: saturate(0.35) brightness(0.7);
+}
+[data-hero='aizawa'] #heroBg .hb-vignette {
+  opacity: calc(0.78 * var(--stage));
+}
+
+/* =========================================================================
+   2. TUONG ANH HERO (.hp) - HOAT HOA
+   ========================================================================= */
+.hp {
+  display: block;
+  overflow: visible;
+  transform-origin: 50% 60%;
+  animation: heroIdle 5.4s ease-in-out infinite;
+  filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.35));
+}
+.hp-aura {
+  transform-origin: center;
+  animation: heroAura 3.6s ease-in-out infinite;
+}
+.hp-eye {
+  transform-origin: center;
+  transform-box: fill-box;
+  animation: heroBlink 6.2s infinite;
+}
+.hp-spark,
+.hp-orb,
+.hp-goggles,
+.hp-pin {
+  transform-origin: center;
+  transform-box: fill-box;
+}
+.hp-spark {
+  animation: heroSpark 1.5s ease-in-out infinite;
+}
+.hp-orb {
+  animation: heroFloat 4.2s ease-in-out infinite;
+}
+.hp-hair,
+.hp-hairL,
+.hp-hairR {
+  transform-origin: 50% 90%;
+  transform-box: fill-box;
+  animation: heroHair 6s ease-in-out infinite;
+}
+.hp-mouth {
+  transform-origin: 50% 20%;
+  transform-box: fill-box;
+  transition: transform var(--dur-3) var(--ease-spring);
+}
+.hp-brow {
+  transition: transform var(--dur-3) var(--ease-out);
+}
+
+@keyframes heroIdle {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  35% {
+    transform: translateY(-4px) rotate(-0.6deg);
+  }
+  70% {
+    transform: translateY(2px) rotate(0.5deg);
+  }
+}
+@keyframes heroAura {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+}
+@keyframes heroBlink {
+  0%,
+  92%,
+  100% {
+    transform: scaleY(1);
+  }
+  95% {
+    transform: scaleY(0.08);
+  }
+}
+@keyframes heroSpark {
+  0%,
+  100% {
+    opacity: 0.25;
+    transform: translateY(2px) scale(0.94);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(-3px) scale(1.06);
+  }
+}
+@keyframes heroFloat {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-9px) scale(1.07);
+  }
+}
+@keyframes heroHair {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(-1.6deg);
+  }
+}
+
+/* --- Trang thai tinh cam --- */
+.hp.is-cheer {
+  animation: heroCheer 0.72s var(--ease-spring) 1;
+}
+.hp.is-cheer .hp-mouth {
+  transform: scale(1.14, 1.3);
+}
+.hp.is-cheer .hp-aura {
+  animation: heroAura 0.9s ease-in-out infinite;
+}
+@keyframes heroCheer {
+  0% {
+    transform: translateY(0) scale(1);
+  }
+  28% {
+    transform: translateY(-14px) scale(1.07, 0.94);
+  }
+  56% {
+    transform: translateY(3px) scale(0.97, 1.05);
+  }
+  100% {
+    transform: translateY(0) scale(1);
+  }
+}
+.hp.is-serious {
+  animation: heroIdle 3.4s ease-in-out infinite;
+}
+.hp.is-serious .hp-brow {
+  transform: translateY(-2px) rotate(-4deg);
+}
+.hp.is-serious .hp-mouth {
+  transform: scaleY(0.6);
+}
+.hp.is-serious .hp-aura {
+  opacity: 0.9;
+}
+.hp.is-tired {
+  animation: heroIdle 8s ease-in-out infinite;
+  filter: grayscale(0.45) drop-shadow(0 6px 12px rgba(0, 0, 0, 0.3));
+}
+.hp.is-tired .hp-eye {
+  transform: translateY(2px) scaleY(0.72);
+  animation: none;
+}
+.hp.is-tired .hp-aura {
+  opacity: 0.2;
+  animation: none;
+}
+.hp.is-tired .hp-mouth {
+  transform: translateY(2px) scale(0.8, 0.55);
+}
+
+/* Luc "trung don": ca khuon mat giem nanh */
+.hp.is-hit {
+  animation: heroHit 0.34s steps(2, end) 2;
+}
+@keyframes heroHit {
+  0% {
+    transform: translateX(-3px) rotate(-1.5deg);
+    filter: brightness(1.5);
+  }
+  100% {
+    transform: translateX(3px) rotate(1.5deg);
+    filter: none;
+  }
+}
+
+/* Huy hieu UA trong sidebar */
+.hp--crest {
+  animation: none;
+  filter: none;
+}
+.brand__logo .hp {
+  animation-duration: 7s;
+}
+
+/* =========================================================================
+   3. AURA ONE FOR ALL (theo streak)
+   ========================================================================= */
+body.aura-1 #heroBg .hb-rays,
+body.aura-2 #heroBg .hb-rays,
+body.aura-3 #heroBg .hb-rays {
+  opacity: calc(0.2 * var(--stage));
+}
+body.aura-2 #heroBg .hb-dust i {
+  width: 6px;
+  height: 6px;
+}
+body.aura-3 #heroBg .hb-dust i {
+  width: 8px;
+  height: 8px;
+  box-shadow: 0 0 18px var(--hero-accent);
+}
+/* Set khi chuoi >= 7: vi de quanh viewport */
+body.aura-2 .app::after,
+body.aura-3 .app::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  border-radius: 0;
+  box-shadow:
+    inset 0 0 60px -18px var(--hero-accent),
+    inset 0 0 140px -60px var(--hero-glow);
+  opacity: 0.5;
+  animation: auraPulse 3.2s ease-in-out infinite;
+}
+body.aura-3 .app::after {
+  opacity: 0.8;
+  animation-duration: 1.9s;
+}
+@keyframes auraPulse {
+  0%,
+  100% {
+    opacity: 0.34;
+  }
+  50% {
+    opacity: 0.85;
+  }
+}
+
+/* =========================================================================
+   3b. ANH THAT CUA HERO (image pack cuc bo trong userData/heroes)
+   ========================================================================= */
+.hp--photo {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  width: var(--photo-size, 120px);
+  height: var(--photo-size, 120px);
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--hero-ink);
+  border: 3px solid var(--hero-accent);
+  box-shadow:
+    0 0 0 2px rgba(0, 0, 0, 0.75),
+    0 14px 30px -14px rgba(0, 0, 0, 0.9),
+    0 0 34px -10px color-mix(in srgb, var(--hero-accent) 85%, transparent);
+  filter: contrast(1.05) saturate(1.1);
+  animation: heroIdle 5.4s ease-in-out infinite;
+}
+.hp--photo > img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 20%;
+  display: block;
+  -webkit-user-drag: none;
+}
+/* Net bi in man + lang mau truyen tranh */
+.hp-photo-tone {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background-image: radial-gradient(color-mix(in srgb, var(--hero-accent) 70%, transparent) 1px, transparent 1.2px);
+  background-size: 5px 5px;
+  mix-blend-mode: color-dodge;
+  opacity: 0.22;
+}
+/* Viang dam + sang highlight kieu muc tac */
+.hp-photo-frame {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow:
+    inset 0 0 0 2px rgba(0, 0, 0, 0.6),
+    inset 0 -22px 34px -18px rgba(0, 0, 0, 0.9),
+    inset 0 16px 26px -18px rgba(255, 255, 255, 0.5);
+}
+/* Trang thai anh huong den anh */
+.hp--photo.is-cheer {
+  animation: heroCheer 0.72s var(--ease-spring) 1;
+  border-color: #fff;
+}
+.hp--photo.is-serious {
+  filter: contrast(1.22) saturate(0.72) brightness(0.92);
+}
+.hp--photo.is-serious .hp-photo-tone {
+  background-image: repeating-linear-gradient(55deg, color-mix(in srgb, var(--hero-glow) 55%, transparent) 0 2px, transparent 2px 9px);
+  mix-blend-mode: overlay;
+  opacity: 0.4;
+}
+.hp--photo.is-tired {
+  filter: grayscale(0.62) contrast(1.02) brightness(0.9);
+  animation-duration: 8s;
+}
+/* Anh ac nhan: khong bo tron, dung khung panel nghieng */
+.hp--photo.hp--villain {
+  border-radius: 16% 22% 18% 24%;
+  border-color: var(--hero-glow);
+  transform: rotate(-3deg);
+}
+/* Khi chua co anh, SVG ve san van chay dung */
+.hp:not(.hp--photo) {
+  overflow: visible;
+}
+
+/* =========================================================================
+   4. BANNER HERO MENTOR (Bang dieu khien)
+   ========================================================================= */
+/* Chiem het chieu ngang o hang dau cua luoi .dash */
+.dash__hero {
+  grid-column: 1 / -1;
+  min-width: 0;
+}
+.hero-banner {
+  position: relative;
+  display: grid;
+  grid-template-columns: 132px minmax(0, 1fr) auto;
+  gap: var(--sp-5);
+  align-items: center;
+  padding: var(--sp-4) var(--sp-5);
+  border-radius: var(--r-lg);
+  background:
+    radial-gradient(120% 140% at 8% 0%, color-mix(in srgb, var(--hero-accent) 26%, transparent), transparent 58%),
+    linear-gradient(135deg, color-mix(in srgb, var(--hero-ink) 78%, transparent), color-mix(in srgb, var(--hero-suit) 62%, transparent));
+  border: 1px solid color-mix(in srgb, var(--hero-accent) 42%, transparent);
+  box-shadow: var(--sh-3), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+  isolation: isolate;
+}
+/* Man hinh hep: bo vong tien do (da co so do trong meta) */
+@media (max-width: 760px) {
+  .hero-banner {
+    grid-template-columns: 104px minmax(0, 1fr);
+  }
+  .hero-banner .ring {
+    display: none;
+  }
+}
+.hero-banner__art {
+  position: relative;
+  display: grid;
+  place-items: center;
+  justify-self: center;
+  border: 0;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: transform var(--dur-2) var(--ease-spring);
+}
+.hero-banner__art:hover {
+  transform: scale(1.05) rotate(-2deg);
+}
+.hero-banner__art:active {
+  transform: scale(0.96);
+}
+/* Net chan bi (halftone) dac truyen truyen tranh */
+.hero-banner::before {
+  content: '';
+  position: absolute;
+  inset: -20% -10% auto auto;
+  width: 62%;
+  height: 160%;
+  background-image: radial-gradient(color-mix(in srgb, var(--hero-line) 55%, transparent) 1.4px, transparent 1.5px);
+  background-size: 9px 9px;
+  opacity: 0.2;
+  transform: rotate(-8deg);
+  z-index: -1;
+}
+/* Vach cheo chay qua khi "cheer" */
+.hero-banner::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: repeating-linear-gradient(
+    115deg,
+    color-mix(in srgb, var(--hero-accent) 22%, transparent) 0 3px,
+    transparent 3px 26px
+  );
+  opacity: 0;
+  transform: translateX(-30%);
+  transition: opacity var(--dur-3);
+}
+.hero-banner.is-cheer::after {
+  opacity: 1;
+  animation: bannerRush 0.62s var(--ease-out) 1;
+}
+@keyframes bannerRush {
+  from {
+    transform: translateX(-60%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+.hero-banner__art {
+  position: relative;
+  display: grid;
+  place-items: center;
+  justify-self: center;
+}
+.hero-banner__art .hp {
+  animation-duration: 6.2s;
+}
+.hero-banner__ring {
+  position: absolute;
+  inset: 6px;
+  border-radius: 50%;
+  border: 2px dashed color-mix(in srgb, var(--hero-accent) 55%, transparent);
+  animation: crestSpin 26s linear infinite;
+}
+@keyframes crestSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.hero-banner__body {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+.hero-nameplate {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  align-self: flex-start;
+  padding: 3px 10px 3px 8px;
+  border-radius: var(--r-pill);
+  background: color-mix(in srgb, var(--hero-accent) 20%, transparent);
+  border: 1px solid color-mix(in srgb, var(--hero-accent) 45%, transparent);
+  font-size: var(--fs-200);
+  font-weight: var(--fw-black);
+  letter-spacing: var(--ls-wide);
+  text-transform: uppercase;
+  color: var(--hero-line);
+}
+.hero-nameplate .ico {
+  color: var(--hero-accent);
+}
+.hero-speech {
+  position: relative;
+  padding: 10px 14px;
+  border-radius: 14px 14px 14px 4px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid color-mix(in srgb, var(--hero-line) 26%, transparent);
+  color: #f3f6ff;
+  font-size: var(--fs-300);
+  line-height: 1.55;
+  box-shadow: var(--sh-1);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+.hero-speech b {
+  color: var(--hero-accent);
+}
+.hero-speech__meta {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  flex-wrap: wrap;
+  margin-top: 2px;
+  font-size: var(--fs-200);
+  color: color-mix(in srgb, var(--hero-line) 70%, #ffffff);
+  opacity: 0.85;
+}
+
+/* =========================================================================
+   5. THE VILLAIN (Boss Quest)
+   ========================================================================= */
+.villain-card {
+  position: relative;
+  border-radius: var(--r-lg);
+  padding: var(--sp-5);
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--hero-glow) 45%, transparent);
+  background:
+    radial-gradient(90% 70% at 88% 12%, color-mix(in srgb, var(--hero-glow) 34%, transparent), transparent 62%),
+    repeating-conic-gradient(from 0deg at 82% 18%, color-mix(in srgb, #000 26%, transparent) 0deg 6deg, transparent 6deg 18deg),
+    linear-gradient(150deg, color-mix(in srgb, var(--hero-ink) 92%, transparent), color-mix(in srgb, #12060c 88%, transparent));
+  box-shadow: var(--sh-3);
+  color: #fff;
+}
+.villain-card__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+}
+.villain-card__art {
+  position: absolute;
+  right: -14px;
+  bottom: -22px;
+  width: 128px;
+  opacity: 0.9;
+  pointer-events: none;
+}
+.villain-card__art .hp {
+  animation: villainSway 4.6s ease-in-out infinite;
+  filter: drop-shadow(0 0 18px color-mix(in srgb, var(--hero-glow) 60%, transparent));
+}
+@keyframes villainSway {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-1.5deg) scale(1);
+  }
+  50% {
+    transform: translateY(-6px) rotate(1.5deg) scale(1.03);
+  }
+}
+.vl-eyes {
+  transform-origin: center;
+  transform-box: fill-box;
+  animation: villainEyes 2.4s ease-in-out infinite;
+}
+@keyframes villainEyes {
+  0%,
+  100% {
+    opacity: 0.75;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.12);
+  }
+}
+.villain-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 9px;
+  border-radius: var(--r-pill);
+  background: color-mix(in srgb, var(--hero-glow) 26%, transparent);
+  border: 1px solid color-mix(in srgb, var(--hero-glow) 55%, transparent);
+  font-size: var(--fs-100);
+  font-weight: var(--fw-black);
+  letter-spacing: var(--ls-wide);
+  text-transform: uppercase;
+}
+.villain-card__title {
+  font-size: var(--fs-600);
+  font-weight: var(--fw-black);
+  line-height: 1.2;
+  margin-top: 6px;
+  max-width: 74%;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+.villain-card__desc {
+  font-size: var(--fs-200);
+  color: rgba(255, 255, 255, 0.72);
+  margin-top: 4px;
+  max-width: 76%;
+}
+.villain-card__time {
+  font-family: var(--font-mono);
+  font-size: var(--fs-200);
+  color: var(--hero-line);
+}
+/* Thanh HP kieu game: o vong + nhap nho */
+.vp-bar {
+  position: relative;
+  height: 16px;
+  margin-top: 14px;
+  border-radius: var(--r-pill);
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  overflow: hidden;
+  z-index: 1;
+}
+.vp-bar__fill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #ff2d55, var(--hero-glow), var(--hero-accent));
+  box-shadow: 0 0 14px color-mix(in srgb, var(--hero-glow) 70%, transparent);
+  transition: width var(--dur-4) var(--ease-out);
+  position: relative;
+}
+.vp-bar__fill::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(115deg, rgba(255, 255, 255, 0.22) 0 6px, transparent 6px 14px);
+  animation: hpStripe 0.9s linear infinite;
+}
+@keyframes hpStripe {
+  to {
+    transform: translateX(-14px);
+  }
+}
+.vp-bar__label {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: var(--fs-100);
+  font-weight: var(--fw-black);
+  letter-spacing: var(--ls-wide);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+}
+.villain-card.is-hit {
+  animation: villainHit 0.3s steps(2, end) 3;
+}
+@keyframes villainHit {
+  0% {
+    transform: translateX(-4px);
+    filter: brightness(2.2) saturate(0.4);
+  }
+  100% {
+    transform: translateX(4px);
+    filter: none;
+  }
+}
+.villain-card.is-dead {
+  animation: villainDown 0.9s var(--ease-out) 1 forwards;
+}
+@keyframes villainDown {
+  0% {
+    transform: none;
+    filter: none;
+  }
+  30% {
+    transform: scale(1.04) rotate(-2deg);
+    filter: brightness(2);
+  }
+  100% {
+    transform: scale(0.96) rotate(1.5deg) translateY(10px);
+    filter: grayscale(0.7) brightness(0.7);
+    opacity: 0.75;
+  }
+}
+.villain-card .row {
+  position: relative;
+  z-index: 1;
+}
+/* Nut "Doi boss" tren nen toi -> can bien sang ro */
+.villain-card .btn--ghost {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.26);
+}
+.villain-card .btn--ghost:hover {
+  background: rgba(255, 255, 255, 0.22);
+  color: var(--hero-line);
+}
+.villain-card--calm {
+  background:
+    radial-gradient(90% 70% at 88% 12%, color-mix(in srgb, var(--hero-accent) 22%, transparent), transparent 66%),
+    linear-gradient(150deg, color-mix(in srgb, var(--hero-ink) 88%, transparent), color-mix(in srgb, var(--hero-suit) 70%, transparent));
+  border-color: color-mix(in srgb, var(--hero-accent) 30%, transparent);
+}
+
+/* =========================================================================
+   6. LOp HIEU UNG CHIEN DAU (#heroFx)
+   ========================================================================= */
+.hero-fx {
+  position: fixed;
+  inset: 0;
+  z-index: 130;
+  pointer-events: none;
+  overflow: hidden;
+}
+.hx {
+  position: absolute;
+  pointer-events: none;
+}
+.hx.is-out {
+  opacity: 0 !important;
+  transition: opacity 0.38s ease;
+}
+
+/* 6.1 Chan man hinh */
+.hx-flash {
+  inset: 0;
+  background: radial-gradient(60% 60% at 50% 50%, color-mix(in srgb, var(--hero-accent) 70%, #fff), transparent 72%);
+  mix-blend-mode: screen;
+  animation: flash 0.3s ease-out 1 forwards;
+}
+@keyframes flash {
+  0% {
+    opacity: 0;
+  }
+  14% {
+    opacity: 0.85;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* 6.2 Song kich */
+.hx-wave {
+  width: 0;
+  height: 0;
+}
+.hx-wave span {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 40px;
+  height: 40px;
+  margin: -20px 0 0 -20px;
+  border-radius: 50%;
+  border: 4px solid var(--hero-accent);
+  box-shadow: 0 0 24px color-mix(in srgb, var(--hero-accent) 70%, transparent);
+  animation: wave calc(0.62s + 0.1s * var(--scale, 1)) var(--ease-out) 1 forwards;
+}
+.hx-wave span:nth-child(2) {
+  border-color: var(--hero-line);
+}
+.hx-wave span:nth-child(3) {
+  border-color: var(--hero-glow);
+}
+@keyframes wave {
+  from {
+    transform: scale(0.3);
+    opacity: 0.95;
+    border-width: 10px;
+  }
+  to {
+    transform: scale(calc(9 * var(--scale, 1)));
+    opacity: 0;
+    border-width: 1px;
+  }
+}
+
+/* 6.3 Ngoi sao va cham */
+.hx-star {
+  transform: translate(-50%, -50%);
+  animation: star 0.62s var(--ease-out) 1 forwards;
+  filter: drop-shadow(0 0 18px color-mix(in srgb, var(--hero-accent) 80%, transparent));
+}
+.hx-star svg {
+  display: block;
+}
+@keyframes star {
+  0% {
+    transform: translate(-50%, -50%) scale(0.2) rotate(-30deg);
+    opacity: 0;
+  }
+  25% {
+    transform: translate(-50%, -50%) scale(1.15) rotate(6deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1.5) rotate(22deg);
+    opacity: 0;
+  }
+}
+
+/* 6.4 Duong toc do */
+.hx-speed {
+  left: 0;
+  top: 0;
+  width: 200vmax;
+  height: 200vmax;
+  transform: translate(-50%, -50%);
+  background: repeating-conic-gradient(
+    from 0deg at 50% 50%,
+    color-mix(in srgb, var(--hero-ink) 80%, #fff) 0deg 0.7deg,
+    transparent 0.7deg 5deg
+  );
+  -webkit-mask-image: radial-gradient(closest-side, transparent 22%, #000 46%, transparent 78%);
+  mask-image: radial-gradient(closest-side, transparent 22%, #000 46%, transparent 78%);
+  opacity: 0;
+  animation: speed 0.62s var(--ease-out) 1 forwards;
+}
+@keyframes speed {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.5) rotate(0deg);
+  }
+  22% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1.25) rotate(9deg);
+  }
+}
+
+/* 6.5 Chu comic */
+.hx-comic {
+  transform: translate(-50%, -50%) rotate(var(--rot, -4deg));
+  animation: comic 0.9s var(--ease-spring) 1 forwards;
+  white-space: nowrap;
+  max-width: 96vw;
+}
+.hx-comic span {
+  display: block;
+  font-family: var(--font-comic, var(--font-sans));
+  /* Chu cang dai cang nho de vua khung hinh ( nhu panel truyen tranh ) */
+  font-size: clamp(17px, calc(1450px / max(var(--len, 14), 8)), 46px);
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  color: #fff;
+  -webkit-text-stroke: 3px var(--hero-ink);
+  paint-order: stroke fill;
+  text-shadow:
+    0 0 0 var(--hero-accent),
+    4px 5px 0 var(--hero-accent),
+    8px 10px 22px rgba(0, 0, 0, 0.45);
+}
+@keyframes comic {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) rotate(var(--rot, -4deg)) scale(0.2);
+  }
+  26% {
+    opacity: 1;
+    transform: translate(-50%, -50%) rotate(var(--rot, -4deg)) scale(1.16);
+  }
+  42% {
+    transform: translate(-50%, -50%) rotate(var(--rot, -4deg)) scale(0.96);
+  }
+  58% {
+    transform: translate(-50%, -50%) rotate(var(--rot, -4deg)) scale(1.03);
+  }
+  82% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -140%) rotate(var(--rot, -4deg)) scale(0.9);
+  }
+}
+
+/* 6.6 Banner giua man hinh */
+.hx-banner {
+  inset: 0;
+  display: grid;
+  place-items: center;
+  animation: bannerIn 0.5s var(--ease-out) 1 forwards;
+}
+.hbn-inner {
+  position: relative;
+  padding: var(--sp-5) clamp(28px, 7vw, 90px);
+  text-align: center;
+  background: linear-gradient(100deg, transparent, color-mix(in srgb, var(--hero-ink) 88%, transparent) 12%, color-mix(in srgb, var(--hero-ink) 88%, transparent) 88%, transparent);
+  border-top: 3px solid var(--hero-accent);
+  border-bottom: 3px solid var(--hero-accent);
+  box-shadow: 0 0 60px -10px color-mix(in srgb, var(--hero-accent) 60%, transparent);
+  transform: skewX(-6deg);
+}
+.hbn-main {
+  font-family: var(--font-comic, var(--font-sans));
+  font-size: clamp(26px, 5vw, 68px);
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: #fff;
+  -webkit-text-stroke: 2px var(--hero-ink);
+  paint-order: stroke fill;
+  text-shadow: 0 0 26px var(--hero-accent), 5px 6px 0 var(--hero-glow);
+}
+.hbn-sub {
+  margin-top: 4px;
+  font-size: var(--fs-300);
+  letter-spacing: var(--ls-wide);
+  text-transform: uppercase;
+  color: var(--hero-line);
+}
+.hbn-rule {
+  margin: 10px auto 0;
+  width: 60%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--hero-accent), transparent);
+}
+@keyframes bannerIn {
+  0% {
+    opacity: 0;
+    transform: scale(1.25);
+  }
+  20% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.04);
+  }
+}
+
+/* 6.7 Rank-up card */
+.hx-rank {
+  inset: 0;
+  display: grid;
+  place-items: center;
+  animation: fadeIn 0.3s ease-out 1 forwards;
+}
+.hrk-rays {
+  position: absolute;
+  width: 190vmax;
+  height: 190vmax;
+  background: repeating-conic-gradient(
+    from 0deg at 50% 50%,
+    color-mix(in srgb, var(--hero-accent) 26%, transparent) 0deg 4deg,
+    transparent 4deg 16deg
+  );
+  -webkit-mask-image: radial-gradient(closest-side, #000 10%, transparent 58%);
+  mask-image: radial-gradient(closest-side, #000 10%, transparent 58%);
+  animation: crestSpin 18s linear infinite;
+}
+.hrk-card {
+  position: relative;
+  display: grid;
+  grid-template-columns: 132px 1fr;
+  align-items: center;
+  gap: var(--sp-4);
+  min-width: 380px;
+  padding: var(--sp-5);
+  border-radius: var(--r-xl);
+  background: linear-gradient(140deg, color-mix(in srgb, var(--hero-ink) 92%, transparent), color-mix(in srgb, var(--hero-suit) 80%, transparent));
+  border: 2px solid var(--hero-accent);
+  box-shadow: 0 26px 70px -20px #000, 0 0 60px -14px color-mix(in srgb, var(--hero-accent) 70%, transparent);
+  animation: rankPop 0.62s var(--ease-spring) 1 forwards;
+  overflow: hidden;
+}
+.hrk-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(color-mix(in srgb, #fff 40%, transparent) 1.2px, transparent 1.3px);
+  background-size: 10px 10px;
+  opacity: 0.12;
+}
+.hrk-info {
+  position: relative;
+  text-align: left;
+}
+.hrk-kicker {
+  font-size: var(--fs-100);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--hero-line);
+}
+.hrk-tier {
+  font-size: 46px;
+  font-weight: 900;
+  line-height: 1;
+  color: #fff;
+  -webkit-text-stroke: 2px var(--hero-accent);
+  paint-order: stroke fill;
+}
+.hrk-name {
+  font-size: var(--fs-600);
+  font-weight: var(--fw-black);
+  margin-top: 2px;
+}
+.hrk-level {
+  font-family: var(--font-mono);
+  font-size: var(--fs-300);
+  color: var(--hero-accent);
+  margin-top: 4px;
+  letter-spacing: var(--ls-wide);
+}
+@keyframes rankPop {
+  0% {
+    opacity: 0;
+    transform: translateY(30px) scale(0.8) rotate(-3deg);
+  }
+  55% {
+    opacity: 1;
+    transform: translateY(0) scale(1.05) rotate(1deg);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* 6.8 Dong "SMASHED" len the quest */
+.qcard {
+  position: relative;
+}
+.hx-stamp {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  padding: 4px 12px;
+  border-radius: 6px;
+  border: 3px solid var(--hero-accent);
+  color: var(--hero-accent);
+  background: color-mix(in srgb, var(--hero-ink) 60%, transparent);
+  font-family: var(--font-comic, var(--font-sans));
+  font-size: var(--fs-500);
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transform: translateY(-50%) rotate(-12deg) scale(2.6);
+  opacity: 0;
+  animation: stamp 0.5s var(--ease-out) 1 forwards;
+  pointer-events: none;
+  z-index: 3;
+}
+@keyframes stamp {
+  0% {
+    opacity: 0;
+    transform: translateY(-50%) rotate(-26deg) scale(2.8);
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(-50%) rotate(-12deg) scale(0.94);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(-50%) rotate(-12deg) scale(1);
+  }
+}
+.qcard.is-smashed {
+  animation: cardSmash 0.5s var(--ease-spring) 1;
+}
+@keyframes cardSmash {
+  0% {
+    transform: none;
+  }
+  22% {
+    transform: scale(1.03) rotate(-0.5deg);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--hero-accent) 70%, transparent), var(--sh-3);
+  }
+  60% {
+    transform: scale(0.99) rotate(0.3deg);
+  }
+  100% {
+    transform: none;
+  }
+}
+
+/* 6.9 Rung ca cua so */
+.app.is-shaking {
+  animation: appShake 0.42s cubic-bezier(0.36, 0.07, 0.19, 0.97) 1;
+}
+@keyframes appShake {
+  0%,
+  100% {
+    transform: none;
+  }
+  15% {
+    transform: translate(calc(var(--shake, 1) * -7px), calc(var(--shake, 1) * 3px)) rotate(calc(var(--shake, 1) * -0.25deg));
+  }
+  32% {
+    transform: translate(calc(var(--shake, 1) * 6px), calc(var(--shake, 1) * -4px)) rotate(calc(var(--shake, 1) * 0.2deg));
+  }
+  52% {
+    transform: translate(calc(var(--shake, 1) * -4px), calc(var(--shake, 1) * 2px));
+  }
+  74% {
+    transform: translate(calc(var(--shake, 1) * 2px), calc(var(--shake, 1) * -1px));
+  }
+}
+
+/* =========================================================================
+   7. HERO HOA NHAP VOI UI SAN (sidebar / topbar / card)
+   ========================================================================= */
+/* Sidebar: thanh nav dang hoat dong co vach "chem" mau hero */
+.nav-item.is-active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 8%;
+  bottom: 8%;
+  width: 3px;
+  border-radius: 3px;
+  background: linear-gradient(180deg, var(--hero-accent), var(--hero-accent-2));
+  box-shadow: 0 0 12px var(--hero-accent);
+}
+[data-hero] .nav-item.is-active {
+  background: color-mix(in srgb, var(--hero-accent) 14%, transparent);
+  border-color: color-mix(in srgb, var(--hero-accent) 34%, transparent);
+}
+
+/* Topbar: chip level thanh "the hanh nghe hero" */
+[data-hero] .stat-chip--level {
+  border-color: color-mix(in srgb, var(--hero-accent) 45%, transparent);
+  background:
+    linear-gradient(120deg, color-mix(in srgb, var(--hero-accent) 16%, transparent), transparent 62%),
+    var(--surface);
+}
+[data-hero] .progress--xp .progress__fill {
+  background: linear-gradient(90deg, var(--hero-accent-2), var(--hero-accent));
+  box-shadow: 0 0 12px color-mix(in srgb, var(--hero-accent) 65%, transparent);
+}
+
+/* Card thuong: vi hero o goi khi chon */
+[data-hero] .card {
+  position: relative;
+}
+[data-hero] .card::after {
+  content: '';
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  width: 12px;
+  height: 12px;
+  border-top: 2px solid color-mix(in srgb, var(--hero-accent) 55%, transparent);
+  border-right: 2px solid color-mix(in srgb, var(--hero-accent) 55%, transparent);
+  opacity: 0;
+  transition: opacity var(--dur-2);
+  pointer-events: none;
+}
+[data-hero] .card:hover::after {
+  opacity: 0.8;
+}
+
+/* Boss tag cu -> giu mau do nhung them sang hero */
+[data-hero] .boss-tag {
+  color: var(--hero-line);
+}
+
+/* Ring tien do: vong tron "quirk" */
+[data-hero] .ring {
+  --ring-c: var(--hero-accent);
+}
+[data-hero] .ring::after {
+  box-shadow: 0 0 22px -4px color-mix(in srgb, var(--hero-accent) 80%, transparent);
+}
+
+/* Overlay level-up mac dinh: bo tri theo hero */
+[data-hero] .levelup__badge {
+  background: linear-gradient(135deg, var(--hero-accent), var(--hero-accent-2));
+  color: var(--hero-ink);
+  box-shadow: 0 0 40px -6px var(--hero-accent);
+}
+[data-hero] .levelup__title {
+  color: #fff;
+  -webkit-text-stroke: 1px var(--hero-ink);
+  text-shadow: 0 0 24px var(--hero-accent);
+}
+
+/* Toast thanh tuu: vien vang kieu "hero license" */
+[data-hero] .toast--achievement {
+  border-color: color-mix(in srgb, var(--hero-accent) 55%, transparent);
+  box-shadow: var(--sh-3), 0 0 26px -8px color-mix(in srgb, var(--hero-accent) 70%, transparent);
+}
+[data-hero] .toast--achievement .toast__icon {
+  color: var(--hero-accent);
+}
+
+/* =========================================================================
+   8. BO CHON HERO (Cai dat / Onboarding)
+   ========================================================================= */
+.hero-picker {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: var(--sp-3);
+}
+.hero-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: var(--sp-4) var(--sp-3) var(--sp-3);
+  border-radius: var(--r-md);
+  border: 1px solid var(--border);
+  background:
+    radial-gradient(120% 90% at 50% -20%, color-mix(in srgb, var(--hc) 26%, transparent), transparent 62%),
+    var(--surface);
+  cursor: pointer;
+  text-align: center;
+  transition: transform var(--dur-2) var(--ease-out), border-color var(--dur-2), box-shadow var(--dur-2);
+  overflow: hidden;
+  --hc: var(--hero-accent);
+}
+.hero-card::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, var(--hc), transparent);
+  opacity: 0.5;
+}
+.hero-card:hover {
+  transform: translateY(-3px);
+  border-color: color-mix(in srgb, var(--hc) 60%, transparent);
+}
+.hero-card.is-active {
+  border-color: var(--hc);
+  box-shadow: 0 0 0 1px var(--hc), 0 14px 34px -16px color-mix(in srgb, var(--hc) 80%, transparent);
+}
+.hero-card.is-active::before {
+  content: '✓';
+  position: absolute;
+  right: 8px;
+  top: 6px;
+  font-size: 13px;
+  font-weight: 900;
+  color: var(--hc);
+}
+.hero-card .hp {
+  animation-duration: 7s;
+}
+.hero-card__name {
+  font-weight: var(--fw-black);
+  font-size: var(--fs-300);
+}
+.hero-card__alias {
+  font-size: var(--fs-100);
+  color: var(--muted);
+  letter-spacing: var(--ls-wide);
+  text-transform: uppercase;
+}
+
+/* =========================================================================
+   9. THEME QUAN ANH HUNG (mới)
+   ========================================================================= */
+/* Academia: trang sang, tuoi mai - "truyen tranh shonen" */
+[data-theme='academia'] {
+  --bg: #f3f6ff;
+  --bg-2: #e8eefc;
+  --bg-glow-1: color-mix(in srgb, var(--hero-accent) 22%, transparent);
+  --bg-glow-2: color-mix(in srgb, var(--hero-accent-2) 18%, transparent);
+  --surface: rgba(255, 255, 255, 0.82);
+  --surface-2: rgba(20, 26, 52, 0.06);
+  --surface-solid: #ffffff;
+  --surface-hover: rgba(255, 255, 255, 0.96);
+  --elevated: #ffffff;
+  --border: rgba(20, 26, 52, 0.12);
+  --border-strong: rgba(20, 26, 52, 0.2);
+  --text: #131a2e;
+  --text-2: #3a4360;
+  --muted: #6a7391;
+  --faint: #9aa3bd;
+  --sh-2: 0 8px 22px -12px rgba(20, 30, 70, 0.32), 0 2px 6px rgba(20, 30, 70, 0.1);
+  --sh-3: 0 22px 50px -18px rgba(20, 30, 70, 0.36), 0 6px 16px rgba(20, 30, 70, 0.14);
+}
+[data-theme='academia'] body::before {
+  background:
+    radial-gradient(1100px 620px at 12% -8%, var(--bg-glow-1), transparent 60%),
+    radial-gradient(900px 560px at 108% 8%, var(--bg-glow-2), transparent 55%),
+    linear-gradient(180deg, #f7f9ff, #e9eefb);
+}
+/* Vi cham tron (screentone) dac trung */
+[data-theme='academia'] .app::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image: radial-gradient(rgba(30, 45, 100, 0.14) 1px, transparent 1.1px);
+  background-size: 8px 8px;
+  opacity: 0.22;
+}
+/* Academia: thanh phoi sang mau, khong bam vang nhu xam */
+[data-theme='academia'] #heroBg {
+  --stage: 0.62;
+}
+[data-theme='academia'] #heroBg .hb-sky {
+  background:
+    radial-gradient(70% 46% at 50% 112%, color-mix(in srgb, var(--hero-accent) 55%, transparent), transparent 70%),
+    radial-gradient(40% 30% at 82% 4%, color-mix(in srgb, var(--hero-accent) 40%, transparent), transparent 66%),
+    linear-gradient(180deg, #dfe9ff, transparent 60%);
+  opacity: calc(0.5 * var(--stage));
+}
+[data-theme='academia'] #heroBg .hb-far {
+  fill: #b9c8ea;
+  opacity: calc(0.34 * var(--stage));
+}
+[data-theme='academia'] #heroBg .hb-near {
+  fill: #8ea3d4;
+  opacity: calc(0.3 * var(--stage));
+}
+[data-theme='academia'] #heroBg .hb-win rect {
+  fill: #fff4c9;
+  opacity: 0.85;
+}
+[data-theme='academia'] #heroBg .hb-vignette {
+  background: linear-gradient(180deg, transparent 62%, color-mix(in srgb, var(--hero-suit) 22%, transparent));
+  opacity: calc(0.4 * var(--stage));
+}
+[data-theme='academia'] #heroBg .hb-cloud {
+  opacity: calc(0.5 * var(--stage));
+  filter: blur(10px);
+}
+[data-theme='academia'] .villain-card {
+  background:
+    radial-gradient(90% 70% at 88% 12%, color-mix(in srgb, var(--hero-glow) 30%, transparent), transparent 66%),
+    repeating-conic-gradient(from 0deg at 82% 18%, rgba(0, 0, 0, 0.12) 0deg 6deg, transparent 6deg 18deg),
+    linear-gradient(150deg, #1b1430, #2a1020);
+}
+[data-theme='academia'] .villain-card {
+  color: #fff;
+}
+
+/* Nightwatch: thanh phoi dem truong canh (toi, nuong ve hero) */
+[data-theme='nightwatch'] {
+  --bg: #070a16;
+  --bg-2: #0b1020;
+  --surface: rgba(255, 255, 255, 0.045);
+  --surface-2: rgba(255, 255, 255, 0.08);
+  --surface-solid: #10162a;
+  --surface-hover: rgba(255, 255, 255, 0.1);
+  --elevated: #141b31;
+  --border: rgba(255, 255, 255, 0.1);
+  --border-strong: rgba(255, 255, 255, 0.18);
+  --text: #eef2ff;
+  --text-2: #c2cbe4;
+  --muted: #8b95b4;
+  --faint: #656f8d;
+  --bg-glow-1: color-mix(in srgb, var(--hero-accent) 20%, transparent);
+  --bg-glow-2: color-mix(in srgb, var(--hero-glow) 16%, transparent);
+}
+[data-theme='nightwatch'] body::before {
+  background:
+    radial-gradient(1100px 620px at 12% -8%, var(--bg-glow-1), transparent 62%),
+    radial-gradient(900px 560px at 108% 8%, var(--bg-glow-2), transparent 55%),
+    linear-gradient(180deg, #070a16, #0d1226);
+}
+
+/* =========================================================================
+   10. PET / MINI MODE: ANH HUNG GOC MAN HINH
+   ========================================================================= */
+.pet-root .knight {
+  cursor: grab;
+}
+.pet-hero {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+}
+.pet-hero .hp {
+  filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.55));
+}
+/* Vong "phat sang" khi pet san sang nhan click */
+.pet-hero::before {
+  content: '';
+  position: absolute;
+  inset: 8px 10px 4px;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--hero-accent) 40%, transparent), transparent 72%);
+  animation: petGlow 2.8s ease-in-out infinite;
+}
+@keyframes petGlow {
+  0%,
+  100% {
+    opacity: 0.45;
+    transform: scale(0.94);
+  }
+  50% {
+    opacity: 0.9;
+    transform: scale(1.06);
+  }
+}
+/* Luc ra don: xoay manh + kich no (pet.js gan class 'slashing') */
+.knight.slashing .pet-hero {
+  animation: petSmash 0.46s var(--ease-spring) 1;
+}
+@keyframes petSmash {
+  0% {
+    transform: rotate(0) scale(1);
+  }
+  25% {
+    transform: rotate(-16deg) scale(1.14);
+  }
+  55% {
+    transform: rotate(10deg) scale(0.94);
+  }
+  100% {
+    transform: rotate(0) scale(1);
+  }
+}
+/* Vet chem mang theo mau hero */
+.pet-root .slash {
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--hero-accent) 90%, #fff), transparent);
+  box-shadow: 0 0 22px color-mix(in srgb, var(--hero-accent) 80%, transparent);
+}
+/* Badge to-do con lai */
+.knight__badge {
+  background: var(--hero-accent);
+  color: var(--hero-ink);
+  font-weight: 900;
+  box-shadow: 0 0 16px color-mix(in srgb, var(--hero-accent) 80%, transparent);
+}
+/* Nhap nho khi idle */
+.pet-hero.idle-bob .hp {
+  animation-duration: 3.4s;
+}
+
+/* Danh sach trang thai anh trong Cai dat */
+.hero-photo-status {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.hps {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 9px;
+  border-radius: var(--r-pill);
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  font-size: var(--fs-100);
+}
+.hps i {
+  font-style: normal;
+  font-weight: var(--fw-bold);
+  color: var(--text-2);
+}
+.hps b {
+  font-weight: var(--fw-black);
+  color: var(--faint);
+  letter-spacing: var(--ls-wide);
+  text-transform: uppercase;
+}
+.hps.is-on {
+  border-color: color-mix(in srgb, var(--hero-accent) 55%, transparent);
+  background: color-mix(in srgb, var(--hero-accent) 14%, transparent);
+}
+.hps.is-on b {
+  color: var(--hero-accent);
+}
+
+/* =========================================================================
+   11. TIEN ICH: chip hang, the "tu y", bao cao ngay, thu nho FX
+   ========================================================================= */
+/* Chip hang (S/A/B/C/D) trong topbar */
+.hero-tier {
+  display: inline-grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  margin-right: 6px;
+  border-radius: 6px;
+  font-family: var(--font-comic);
+  font-size: 13px;
+  font-weight: 900;
+  line-height: 1;
+  color: var(--hero-ink);
+  background: linear-gradient(140deg, var(--hero-accent), var(--hero-accent-2));
+  box-shadow: 0 0 12px -2px color-mix(in srgb, var(--hero-accent) 80%, transparent);
+}
+.hero-tier[data-tier='S'] {
+  background: linear-gradient(140deg, #fff0a0, var(--hero-accent));
+}
+.hero-tier[data-tier='D'] {
+  background: linear-gradient(140deg, var(--hero-line), var(--hero-accent));
+  opacity: 0.85;
+}
+.hero-nameplate__alias {
+  font-weight: var(--fw-medium);
+  text-transform: none;
+  letter-spacing: 0;
+  opacity: 0.72;
+}
+.hero-nameplate__alias::before {
+  content: '·';
+  margin-right: 6px;
+}
+
+/* The hero "Tuy chinh" trong cai dat */
+.hero-card__swatch {
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.35), 0 8px 20px -10px #000;
+}
+.color-pick {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-size: var(--fs-200);
+  color: var(--text-2);
+  cursor: pointer;
+}
+.color-pick input[type='color'] {
+  width: 40px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-xs);
+  background: transparent;
+  cursor: pointer;
+}
+.hero-picker--ob {
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  max-width: 640px;
+  max-height: 46vh;
+  overflow: auto;
+  padding: 4px;
+}
+.report-portrait {
+  flex: none;
+  width: 76px;
+  height: 76px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--hero-accent) 26%, transparent), transparent);
+}
+.hidden {
+  display: none !important;
+}
+
+/* Cua so mini: FX thu nho theo khung 140x150 */
+body.pet-body .hx-comic span {
+  font-size: 15px;
+  -webkit-text-stroke-width: 1.4px;
+  text-shadow: 2px 3px 0 var(--hero-accent);
+}
+body.pet-body .hx-wave span {
+  border-width: 2px;
+}
+body.pet-body .hx-star svg {
+  width: 96px;
+  height: 96px;
+}
+body.pet-body .hx-speed {
+  display: none;
+}
+body.pet-body .hbn-main {
+  font-size: 19px;
+}
+body.pet-body .hbn-sub,
+body.pet-body .hbn-rule {
+  display: none;
+}
+body.pet-body .hbn-inner {
+  padding: 8px 14px;
+}
+/* Nen trong suot -> khong chop hieu ung chan man len pet */
+body.pet-body .hx-flash {
+  opacity: 0.5;
+}
+
+/* =========================================================================
+   12. GIAM CHUYEN DONG
+   ========================================================================= */
+.reduced-motion #heroBg .hb-cloud,
+.reduced-motion #heroBg .hb-rays,
+.reduced-motion #heroBg .hb-dust i,
+.reduced-motion #heroBg .hb-far,
+.reduced-motion #heroBg .hb-near,
+.reduced-motion .hp,
+.reduced-motion .hp-aura,
+.reduced-motion .hp-eye,
+.reduced-motion .hp-hair,
+.reduced-motion .vl-eyes,
+.reduced-motion .hrk-rays {
+  animation: none !important;
+}
+.reduced-motion .hx-speed,
+.reduced-motion .hx-star {
+  display: none;
+}
+.reduced-motion .app.is-shaking {
+  animation: none;
+}

@@ -55,9 +55,10 @@ function note(freq, start, dur, opts = {}) {
 }
 
 /** Bach noise ngan (dung cho hieu ung "pop"). */
-function noise(start, dur, gain = 0.2) {
+function noise(start, dur, gain = 0.2, opts = {}) {
   const c = ensureCtx();
   if (!c) return;
+  const { type = 'highpass', freq = 1200, freqTo = null, q = 1 } = opts;
   const frames = Math.floor(c.sampleRate * dur);
   const buffer = c.createBuffer(1, frames, c.sampleRate);
   const data = buffer.getChannelData(0);
@@ -65,14 +66,20 @@ function noise(start, dur, gain = 0.2) {
   const src = c.createBufferSource();
   src.buffer = buffer;
   const g = c.createGain();
-  g.gain.value = gain;
-  const hp = c.createBiquadFilter();
-  hp.type = 'highpass';
-  hp.frequency.value = 1200;
-  src.connect(hp);
-  hp.connect(g);
+  const t0 = c.currentTime + start;
+  // envelope de tieng no khong "bot" - danh cho hieu ung SMASH
+  g.gain.setValueAtTime(0.0001, t0);
+  g.gain.exponentialRampToValueAtTime(Math.max(0.0001, gain), t0 + 0.01);
+  g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  const filt = c.createBiquadFilter();
+  filt.type = type;
+  filt.Q.value = q;
+  filt.frequency.setValueAtTime(freq, t0);
+  if (freqTo) filt.frequency.exponentialRampToValueAtTime(Math.max(20, freqTo), t0 + dur);
+  src.connect(filt);
+  filt.connect(g);
   g.connect(masterGain);
-  src.start(c.currentTime + start);
+  src.start(t0);
 }
 
 // Ngan hang cac sound effect (moi ham goi note/noise)
@@ -133,6 +140,62 @@ const EFFECTS = {
   focusDone() {
     note(880, 0, 0.16, { type: 'sine', gain: 0.26 });
     note(1175, 0.14, 0.24, { type: 'sine', gain: 0.24 });
+  },
+
+  /* ================= HIEU UNG CHIEN DAU (My Hero Academia) ================= */
+  /** All Might: cuoi don manh - gio vut nhanh + va cham tram. */
+  smash() {
+    noise(0, 0.16, 0.24, { type: 'bandpass', freq: 2600, freqTo: 320, q: 0.7 }); // gio
+    note(180, 0.05, 0.26, { type: 'sine', gain: 0.5, glideTo: 42 }); // va cham
+    noise(0.05, 0.22, 0.34, { type: 'lowpass', freq: 900, freqTo: 120 });
+    note(720, 0.02, 0.1, { type: 'square', gain: 0.14, glideTo: 240 });
+  },
+  /** Deku: nang luong One For All tich dien. */
+  cowl() {
+    note(120, 0, 0.42, { type: 'sawtooth', gain: 0.16, glideTo: 620 });
+    note(1200, 0.12, 0.22, { type: 'triangle', gain: 0.14, glideTo: 2400 });
+    noise(0.1, 0.3, 0.1, { type: 'highpass', freq: 3200 });
+  },
+  /** Bakugo: no ping - tieng no ngan, sam set. */
+  blast() {
+    noise(0, 0.1, 0.4, { type: 'bandpass', freq: 1400, freqTo: 260, q: 1.6 });
+    note(320, 0, 0.12, { type: 'square', gain: 0.22, glideTo: 60 });
+    note(2400, 0.02, 0.06, { type: 'square', gain: 0.1 });
+  },
+  /** Todoroki: nua bang nua lua - hai huong doi lap. */
+  flame() {
+    noise(0, 0.34, 0.2, { type: 'bandpass', freq: 260, freqTo: 2400, q: 0.8 });
+    note(523, 0.04, 0.2, { type: 'sine', gain: 0.16, glideTo: 990 });
+    note(1568, 0.16, 0.2, { type: 'triangle', gain: 0.12 });
+  },
+  /** Uraraka: nau tro trong luc - bong bong bay len. */
+  float() {
+    note(520, 0, 0.22, { type: 'sine', gain: 0.2, glideTo: 1560 });
+    note(1040, 0.12, 0.26, { type: 'sine', gain: 0.12, glideTo: 2100 });
+  },
+  /** Eraser Head: khan bat - gio tram bi cat ngat. */
+  erase() {
+    noise(0, 0.26, 0.24, { type: 'lowpass', freq: 2200, freqTo: 200 });
+    note(150, 0.16, 0.16, { type: 'square', gain: 0.18, glideTo: 70 });
+  },
+  /** "PLUS ULTRA!" - fanfare anh hung 4 note. */
+  ultra() {
+    const seq = [523, 659, 784, 1046];
+    seq.forEach((f, i) => note(f, i * 0.075, 0.3, { type: 'sawtooth', gain: 0.2 }));
+    note(1568, 0.32, 0.5, { type: 'triangle', gain: 0.16 });
+  },
+  /** Len hang: fanfare lon + rung vang. */
+  rankUp() {
+    const seq = [392, 523, 659, 784, 1046, 1319];
+    seq.forEach((f, i) => note(f, i * 0.08, 0.36, { type: 'sawtooth', gain: 0.2 }));
+    note(2093, 0.5, 0.7, { type: 'sine', gain: 0.16 });
+    noise(0.44, 0.4, 0.08, { type: 'highpass', freq: 4200 });
+  },
+  /** Ac nhan xuat hien / boss con song: am tram de nghi. */
+  villain() {
+    note(110, 0, 0.6, { type: 'sawtooth', gain: 0.2, glideTo: 82 });
+    note(165, 0.05, 0.5, { type: 'square', gain: 0.1 });
+    noise(0, 0.5, 0.1, { type: 'lowpass', freq: 400 });
   },
 };
 

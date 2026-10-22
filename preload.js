@@ -28,6 +28,10 @@ const api = {
   // --- File mau ---
   readExample: (name) => ipcRenderer.invoke('app:readExample', name),
 
+  // --- Anh hero (thu muc cuc bo userData/heroes, dung rieng tren may nay) ---
+  heroesList: () => ipcRenderer.invoke('heroes:list'),
+  heroesOpenFolder: () => ipcRenderer.invoke('heroes:openFolder'),
+
   // --- Notification ---
   notify: (title, body) => ipcRenderer.invoke('notif:show', { title, body }),
 

@@ -228,7 +228,9 @@ export const ENCOURAGEMENT = {
 
 /* ============================ CAI DAT MAC DINH ============================ */
 export const DEFAULT_SETTINGS = {
-  theme: 'dark', // dark | light | cyberpunk | forest
+  theme: 'academia', // academia | nightwatch | dark | light | cyberpunk | forest
+  heroStyle: 'allmight', // allmight | midoriya | bakugo | todoroki | uraraka | aizawa
+  heroFx: 'full', // 'full' | 'soft' | 'off' - cuong do hieu ung chien dau
   accent: 'violet', // violet | blue | cyan | green | amber | pink | red | custom
   customAccent: '#7c5cff',
   customAccent2: '#22d3ee',
@@ -292,10 +294,19 @@ export const SAMPLE_SCHEDULE = [
 export const LANGUAGES = { vi: 'Tiếng Việt', en: 'English' };
 
 export const THEMES = {
+  academia: { vi: 'UA Academia', en: 'UA Academia', preview: 'linear-gradient(135deg,#f7f9ff,#ffd23f)' },
+  nightwatch: { vi: 'Đêm trực chiến', en: 'Night Watch', preview: 'linear-gradient(135deg,#070a16,#2f6bff)' },
   dark: { vi: 'Dark Neon', en: 'Dark Neon', preview: 'linear-gradient(135deg,#0b0a14,#22d3ee)' },
   light: { vi: 'Light', en: 'Light', preview: 'linear-gradient(135deg,#eef0f8,#6d4aff)' },
   cyberpunk: { vi: 'Cyberpunk', en: 'Cyberpunk', preview: 'linear-gradient(135deg,#07060f,#ff2d95)' },
   forest: { vi: 'Forest', en: 'Forest', preview: 'linear-gradient(135deg,#0b1410,#b6e04a)' },
+};
+
+/* ============================ CUONG DO HIEU UNG CHIEN DAU ============================ */
+export const HERO_FX_LEVELS = {
+  full: { vi: 'Full - SMASH ra tro', en: 'Full - total SMASH' },
+  soft: { vi: 'Nhẹ - chỉ chớp + chữ', en: 'Soft - flash & text only' },
+  off: { vi: 'Tắt hiệu ứng', en: 'Effects off' },
 };
 
 export const ACCENT_SWATCHES = [

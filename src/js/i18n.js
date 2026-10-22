@@ -76,6 +76,30 @@ const DICTIONARY = {
   'dash.justUnlocked': { vi: 'Vừa mở khóa', en: 'Just unlocked' },
   'dash.noEvent': { vi: 'Hôm nay không có sự kiện', en: 'No events today' },
   'dash.focusNext': { vi: 'Tập trung vào', en: 'Focus on' },
+  'dash.calm': { vi: 'THÀNH PHỐ BÌNH YÊN', en: 'CITY AT PEACE' },
+
+  // ---- Anh hung (My Hero Academia) ----
+  'hero.rank': { vi: 'Hạng anh hùng', en: 'Hero rank' },
+  'hero.style': { vi: 'Phong cách anh hùng', en: 'Hero style' },
+  'hero.styleHint': { vi: 'Đổi toàn bộ màu sắc, linh vật, hiệu ứng ra đòn và lời thoại.', en: 'Changes palette, mascot, strike effects and voice lines.' },
+  'hero.custom': { vi: 'Tùy chỉnh', en: 'Custom' },
+  'hero.customHint': { vi: 'Tự chọn hai màu cho bộ đồ hero của bạn', en: 'Pick your own two hero-suit colors' },
+  'hero.fx': { vi: 'Hiệu ứng chiến đấu', en: 'Battle effects' },
+  'hero.fxHint': { vi: 'Chớp màn hình, sóng kích, chữ comic khi hoàn thành quest', en: 'Screen flash, shockwaves and comic text on quest completion' },
+  'hero.fxTest': { vi: 'Chạy thử đòn SMASH', en: 'Test a SMASH' },
+  'hero.rankTest': { vi: 'Thử thẻ LÊN HANG', en: 'Test rank card' },
+  'hero.pickTitle': { vi: 'Chọn người đồng hành', en: 'Choose your partner hero' },
+  'hero.sayMore': { vi: 'Bấm vào tướng hero để nghe một câu khác', en: 'Tap the hero portrait for another line' },
+  'hero.photoTitle': { vi: 'Ảnh anh hùng của bạn', en: 'Your hero artwork' },
+  'hero.photoHint': {
+    vi: 'Đặt ảnh của bạn vào thư mục cục bộ (png/jpg/webp), đặt tên theo nhân vật: allmight.png, allmight-cheer.png, allmight-skinny.png, villain.png… Ảnh chỉ nằm trên máy bạn, không đi vào file cài đặt. Không có ảnh thì app dùng hình vẽ SVG sẵn có.',
+    en: 'Drop your own images (png/jpg/webp) into the local folder, named by character: allmight.png, allmight-cheer.png, allmight-skinny.png, villain.png… They stay on your machine and are never bundled into the build. Without them the built-in SVG art is used.',
+  },
+  'hero.photoOpen': { vi: 'Mở thư mục ảnh', en: 'Open image folder' },
+  'hero.photoReload': { vi: 'Tải lại ảnh', en: 'Reload images' },
+  'hero.photoCount': { vi: 'ảnh', en: 'imgs' },
+  'hero.photoSvg': { vi: 'SVG', en: 'SVG' },
+  'hero.villainLabel': { vi: 'Ác nhân', en: 'Villain' },
 
   // ---- Quests ----
   'quest.new': { vi: 'Quest mới', en: 'New quest' },

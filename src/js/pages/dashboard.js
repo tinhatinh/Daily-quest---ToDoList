@@ -1,13 +1,14 @@
 /*
  * pages/dashboard.js - TRANG BANG DIEU KHIEN
  * -------------------------------------------
- * 3 cot: trai (tien do hom nay + boss), giua (danh sach quest hom nay),
- * phai (su kien tiep theo + streak + thanh tuu vua mo).
- * Cap nhat dem nguoc + ring theo thoi gian qua su kien 'clock:tick'.
+ * 3 cot: trai (banner Hero Mentor + the ac nhan boss), giua (danh sach quest
+ * hom nay), phai (su kien tiep theo + streak + thanh tuu vua mo).
+ * Tuong anh hung doi hanh vi theo tien do (All Might "xuong dap" khi chua
+ * lam duoc gi), bam vao no de nghe cau noi + ra don. Cap nhat dem nguoc +
+ * ring theo thoi gian qua su kien 'clock:tick'.
  */
 
 import { store } from '../store.js';
-import { router } from '../router.js';
 import {
   dayProgress,
   getTodayQuests,
@@ -17,9 +18,13 @@ import {
 } from '../selectors.js';
 import { findNextEvent } from '../recurrence.js';
 import { scheduler } from '../scheduler.js';
-import { questCardHtml, attachQuestDelegation, emptyStateHtml } from '../components.js';
+import { questCardHtml, attachQuestDelegation, emptyStateHtml, handleQuestFeedback } from '../components.js';
 import { openQuestForm } from '../questForm.js';
 import { ACHIEVEMENTS, ENCOURAGEMENT, DIFFICULTIES } from '../constants.js';
+import { completeQuest } from '../gamification.js';
+import { audio } from '../audio.js';
+import { getHero, heroLine, pickSmash } from '../heroes.js';
+import { heroPortrait, villainPortrait, playSmash } from '../heroArt.js';
 import {
   dayPart,
   pick,
@@ -56,38 +61,85 @@ function greeting() {
   const name = store.state.profile.name || (i18n.lang === 'en' ? 'hero' : 'bạn');
   const key = 'dash.greeting.' + part;
   const greet = i18n.t(key);
-  const msg = pick(ENCOURAGEMENT[part] || ENCOURAGEMENT.empty);
+  const heroId = store.state.settings.heroStyle || 'allmight';
+  // loi tho cua anh hung dung dau, neu trang moi dung loi nhan chung
+  const msg = heroLine(heroId, part) || pick(ENCOURAGEMENT[part] || ENCOURAGEMENT.empty);
   return `${greet}, ${name}. ${msg}`;
 }
 
 /* ---------- Tung khu vuc ---------- */
-function todaySection() {
+/**
+ * Banner "Hero Mentor": tuong anh hung + loi tho theo dien bien trong ngay
+ * + vong tien do. All Might xuong dap (dang Toshinori) khi chua lam duoc gi.
+ */
+function heroBannerSection() {
   const p = dayProgress(store.state, store.todayKey());
+  const heroId = store.state.settings.heroStyle || 'allmight';
+  const hero = getHero(heroId);
+  const boss = scheduler.getBossQuest();
+  const bossAlive = !!boss && !isQuestCompletedOn(store.state, boss, store.todayKey());
+  const mood = heroMood(p, bossAlive);
+  const skinny = (heroId === 'allmight' || heroId === 'custom') && p.pct === 0;
   const hint =
     p.total === 0
       ? t('quest.emptyTitle')
       : p.done === p.total
         ? t('dash.allDone')
         : t('dash.perfectHint', { n: p.total - p.done });
+
   return `
-    <div class="card today-card">
-      <div class="ring" id="dashRing" style="--pct:${p.pct}"><span class="ring__label" id="dashRingLabel">${p.pct}%</span></div>
-      <div class="today-card__info">
-        <div class="today-card__label">${t('dash.progressToday')}</div>
-        <div class="today-card__count" id="dashTodayCount">${p.done} / ${p.total} ${t('dash.questDone')}</div>
-        <div class="today-card__hint" id="dashTodayHint">${escapeHtml(hint)}</div>
+    <div class="hero-banner" id="heroBanner" data-mood="${mood}">
+      <button class="hero-banner__art" id="heroSay" type="button" data-tip="${i18n.lang === 'en' ? 'Ask for a line' : 'Bam de nghe mot cau'}" aria-label="${escapeHtml(hero.heroName)}">
+        <span class="hero-banner__ring"></span>
+        ${heroPortrait(heroId, { size: 118, mood, skinny })}
+      </button>
+      <div class="hero-banner__body">
+        <div class="hero-nameplate">${icon('badge', { size: 13 })}<span>${escapeHtml(hero.heroName)}</span><span class="hero-nameplate__alias">${escapeHtml(i18n.lang === 'en' ? hero.aliasEn : hero.aliasVi)}</span></div>
+        <div class="hero-speech" id="heroSpeech">${escapeHtml(heroLine(heroId, speechKey(p, bossAlive)) || greetingLine())}</div>
+        <div class="hero-speech__meta">
+          <span id="dashTodayCount">${p.done} / ${p.total} ${t('dash.questDone')}</span>
+          <span aria-hidden="true">·</span>
+          <span id="dashTodayHint">${escapeHtml(hint)}</span>
+        </div>
       </div>
+      <div class="ring" id="dashRing" style="--pct:${p.pct}"><span class="ring__label" id="dashRingLabel">${p.pct}%</span></div>
     </div>`;
 }
 
+/** Nguyen canh chon loi tho. */
+function speechKey(p, bossAlive) {
+  if (!p.total) return 'empty';
+  if (p.done === p.total) return 'allDone';
+  if (bossAlive) return 'boss';
+  const part = dayPart();
+  if (part === 'lateNight' && p.done < p.total) return 'almostDayOver';
+  return part;
+}
+
+/** Hanh vi cua tuong anh hung theo tien do. */
+function heroMood(p, bossAlive) {
+  if (p.total && p.pct >= 100) return 'cheer';
+  if (bossAlive) return 'serious';
+  if (!p.total || p.pct === 0) return 'tired';
+  if (p.pct < 40) return 'tired';
+  return 'idle';
+}
+
+/** Loi tho mac dinh = loi chao theo buoi (co the duoc ghi de). */
+function greetingLine() {
+  return heroLine(store.state.settings.heroStyle || 'allmight', dayPart()) || greeting();
+}
+
 function bossSection() {
+  const heroId = store.state.settings.heroStyle || 'allmight';
+  const hero = getHero(heroId);
   const boss = scheduler.getBossQuest();
   const today = store.todayKey();
   if (!boss) {
-    return `<div class="boss-card">
-      <div class="boss-card__top"><span class="boss-tag">${icon('target', { size: 13 })}${t('dash.boss')}</span></div>
-      <div class="boss-card__title">${i18n.lang === 'en' ? 'No boss today' : 'Hôm nay chưa có boss'}</div>
-      <div class="boss-card__desc">${i18n.lang === 'en' ? 'Add quests, then a boss will appear.' : 'Thêm quest để boss xuất hiện.'}</div>
+    return `<div class="villain-card villain-card--calm">
+      <div class="villain-card__top"><span class="villain-tag">${icon('shield', { size: 13 })}${t('dash.calm')}</span></div>
+      <div class="villain-card__title">${i18n.lang === 'en' ? 'A quiet city today' : 'Hôm nay thành phố bình yên'}</div>
+      <div class="villain-card__desc">${i18n.lang === 'en' ? 'Add quests and a villain will show up.' : 'Thêm quest để ác nhân xuất hiện.'}</div>
     </div>`;
   }
   const done = isQuestCompletedOn(store.state, boss, today);
@@ -95,19 +147,22 @@ function bossSection() {
   const hp = done ? 0 : Math.max(5, 100 - p.pct);
   const xp = Math.round((boss.xp || DIFFICULTIES[boss.difficulty]?.xp || 30) * 2);
   const coin = (boss.coin || DIFFICULTIES[boss.difficulty]?.coin || 10) + 20;
-  return `<div class="boss-card" id="dashBoss">
-    <div class="boss-card__top">
-      <span class="boss-tag">${icon('target', { size: 13 })}${t('dash.boss')}</span>
-      <span class="boss-card__time" id="dashBossTime">${done ? '' : t('dash.remaining', { t: humanDuration(secondsToDayEnd()) })}</span>
+  return `<div class="villain-card ${done ? 'is-dead' : ''}" id="dashBoss">
+    <div class="villain-card__top">
+      <span class="villain-tag">${icon('skull', { size: 13 })}${t('dash.boss')}</span>
+      <span class="villain-card__time" id="dashBossTime">${done ? '' : t('dash.remaining', { t: humanDuration(secondsToDayEnd()) })}</span>
     </div>
-    <div class="boss-card__title">${escapeHtml(boss.title)}</div>
-    <div class="boss-card__desc">${done ? (i18n.lang === 'en' ? 'Boss defeated! 🎉' : 'Boss đã bị hạ! 🎉') : t('dash.bossDesc', { xp, coin })}</div>
-    <div class="hp-bar"><div class="hp-bar__fill" style="width:${hp}%"></div></div>
-    <div class="boss-card__hp">${done ? 'HP 0%' : t('dash.bossHp', { n: hp })}</div>
-    ${done ? '' : `<div class="row gap-2" style="margin-top:12px;position:relative;z-index:1">
+    <div class="villain-card__title">${escapeHtml(boss.title)}</div>
+    <div class="villain-card__desc">${done ? (i18n.lang === 'en' ? 'Villain defeated! 🎉' : 'Ác nhân đã bị hạ! 🎉') : t('dash.bossDesc', { xp, coin })}</div>
+    <div class="vp-bar">
+      <div class="vp-bar__fill" style="width:${hp}%"></div>
+      <div class="vp-bar__label">${done ? 'K.O.' : 'HP ' + hp + '%'}</div>
+    </div>
+    ${done ? '' : `<div class="row gap-2" style="margin-top:14px">
       <button class="btn btn--sm btn--primary" data-boss-action="toggle" data-id="${boss.id}">${icon('sword')}${i18n.lang === 'en' ? 'Defeat boss' : 'Đánh boss'}</button>
       <button class="btn btn--sm btn--ghost" data-boss-action="reroll">${icon('refresh')}${t('dash.bossReroll')}</button>
     </div>`}
+    <div class="villain-card__art">${villainPortrait(heroId, { size: 128 })}</div>
   </div>`;
 }
 
@@ -238,7 +293,8 @@ export const dashboardPage = {
     els.view = view;
     view.innerHTML = `
       <div class="dash">
-        <div class="dash__col dash__left">${todaySection()}${bossSection()}</div>
+        <div class="dash__hero">${heroBannerSection()}</div>
+        <div class="dash__col dash__left">${bossSection()}</div>
         <div class="dash__col dash__center">
           <div class="section-title">${t('dash.todayQuests')}</div>
           <div class="dash-list" id="dashQuestList">${questList()}</div>
@@ -246,12 +302,8 @@ export const dashboardPage = {
         <div class="dash__col dash__right">${nextEventSection()}${streakSection()}${unlockSection()}</div>
       </div>`;
 
-    els.ring = view.querySelector('#dashRing');
-    els.ringLabel = view.querySelector('#dashRingLabel');
-    els.todayCount = view.querySelector('#dashTodayCount');
-    els.todayHint = view.querySelector('#dashTodayHint');
+    this.cacheEls();
     els.nextCount = view.querySelector('#dashNextCount');
-    els.bossTime = view.querySelector('#dashBossTime');
     els.list = view.querySelector('#dashQuestList');
 
     attachQuestDelegation(els.list, {
@@ -266,12 +318,26 @@ export const dashboardPage = {
     updateDynamic();
   },
 
+  /** Cam lai cac node dong cua banner / boss (outerHTML thay doi lien tuc). */
+  cacheEls() {
+    const view = els.view;
+    if (!view) return;
+    els.ring = view.querySelector('#dashRing');
+    els.ringLabel = view.querySelector('#dashRingLabel');
+    els.todayCount = view.querySelector('#dashTodayCount');
+    els.todayHint = view.querySelector('#dashTodayHint');
+    els.bossTime = view.querySelector('#dashBossTime');
+  },
+
   refreshList() {
     if (!els.list) return;
     els.list.innerHTML = questList();
-    const boss = document.querySelector('#dashBoss');
+    const boss = els.view.querySelector('#dashBoss');
     if (boss) boss.outerHTML = bossSection();
-    els.bossTime = els.view.querySelector('#dashBossTime');
+    // tuong anh hung cung doi theo dien bien trong ngay
+    const banner = els.view.querySelector('#heroBanner');
+    if (banner) banner.outerHTML = heroBannerSection();
+    this.cacheEls();
     updateDynamic();
   },
 
@@ -299,10 +365,64 @@ function onDashClick(e) {
       scheduler.rollBoss(true);
       dashboardPage.refreshList();
     } else if (act === 'toggle') {
-      router.go('quests');
+      smashBoss(bossBtn);
     }
+    return;
+  }
+  const say = e.target.closest('#heroSay');
+  if (say) {
+    heroSay(say);
     return;
   }
   const emptyBtn = e.target.closest('[data-empty-action="new-quest"]');
   if (emptyBtn) openQuestForm(null, { onDone: () => dashboardPage.refreshList() });
+}
+
+/** Bam tuong anh hung -> ra don + noi mot cau khac. */
+const SAY_KEYS = ['morning', 'midday', 'afternoon', 'evening', 'lateNight', 'allDone', 'levelUp', 'combo', 'boss', 'almostDayOver'];
+function heroSay(node) {
+  const heroId = store.state.settings.heroStyle || 'allmight';
+  const r = node.getBoundingClientRect();
+  const speech = els.view && els.view.querySelector('#heroSpeech');
+  if (speech) {
+    const line = heroLine(heroId, SAY_KEYS[Math.floor(Math.random() * SAY_KEYS.length)]) || greeting();
+    speech.textContent = line;
+  }
+  audio.play('ultra');
+  playSmash({
+    x: r.left + r.width / 2,
+    y: r.top + r.height * 0.45,
+    hero: heroId,
+    text: pickSmash(heroId),
+    power: 1.1,
+  });
+  node.classList.remove('is-hit');
+  void node.offsetWidth;
+  node.classList.add('is-hit');
+  const banner = els.view && els.view.querySelector('#heroBanner');
+  if (banner) {
+    banner.classList.remove('is-cheer');
+    void banner.offsetWidth;
+    banner.classList.add('is-cheer');
+    setTimeout(() => banner.classList.remove('is-cheer'), 900);
+  }
+}
+
+/** "Danh boss" ngay tren banner: ac nhan rung + khuynh. */
+function smashBoss(btn) {
+  const boss = scheduler.getBossQuest();
+  if (!boss) return;
+  const card = btn.closest('.villain-card');
+  const r = btn.getBoundingClientRect();
+  const pt = { x: r.left + r.width / 2, y: r.top };
+  card && card.classList.add('is-hit');
+  const out = completeQuest(boss.id);
+  handleQuestFeedback(out, boss, { ...pt, node: card });
+  setTimeout(() => {
+    if (card) {
+      card.classList.remove('is-hit');
+      card.classList.add('is-dead');
+    }
+  }, 320);
+  setTimeout(() => dashboardPage.refreshList(), 950);
 }

@@ -15,6 +15,8 @@ import {
   DIFFICULTIES,
   PRIORITIES,
 } from './constants.js';
+import { getHero, pickSmash, heroRank } from './heroes.js';
+import { playSmash, playBanner, playRankUp, stampQuest } from './heroArt.js';
 import {
   questSubtasks,
   isQuestCompletedOn,
@@ -154,13 +156,13 @@ export function emptyStateHtml({ iconName = 'sparkles', title = '', msg = '', ac
 }
 
 /* ============================ HEADER CHIPS ============================ */
-/** HTML 3 chip tren topbar: streak / coin / level+XP. */
+/** HTML 3 chip tren topbar: streak / coin / hang anh hung + XP. */
 export function topStatsHtml(state = store.state) {
   const g = state.game;
   const info = getLevelInfo(state);
   const streakIcon = icon('flame', { size: 16 });
   const coinIcon = icon('coin', { size: 16 });
-  const title = i18n.lang === 'en' ? info.titleEn : info.titleVi;
+  const rank = heroRank(info.level, i18n.lang);
   return `
     <div class="stat-chip stat-chip--streak" data-tip="${t('common.streak')}">
       ${streakIcon}<span>${g.streak.count} ${t('common.days')}</span>
@@ -168,10 +170,13 @@ export function topStatsHtml(state = store.state) {
     <div class="stat-chip stat-chip--coin" data-tip="${t('nav.shop')}">
       ${coinIcon}<span>${formatNumber(g.coin)} ${t('common.coin')}</span>
     </div>
-    <div class="stat-chip stat-chip--level" data-tip="${t('nav.stats')}">
+    <div class="stat-chip stat-chip--level" data-tip="${t('hero.rank')}">
       <div class="level-avatar">${state.profile.avatar || '🦊'}</div>
       <div class="level-meta">
-        <div class="level-meta__top"><span><b>${title}</b> · ${formatNumber(info.xp)} / ${formatNumber(info.need)} ${t('common.xp')}</span></div>
+        <div class="level-meta__top">
+          <span class="hero-tier" data-tier="${rank.tier}">${escapeHtml(rank.tier)}</span>
+          <span><b>${escapeHtml(rank.label)}</b> · ${formatNumber(info.xp)} / ${formatNumber(info.need)} ${t('common.xp')}</span>
+        </div>
         <div class="progress progress--xp progress--thin"><div class="progress__fill" style="width:${info.pct}%"></div></div>
       </div>
     </div>`;
@@ -183,23 +188,42 @@ export function topStatsHtml(state = store.state) {
 /**
  * @param {object} out ket qua tu completeQuest()
  * @param {object} quest
- * @param {{x:number,y:number}} pt toa do click (de bay XP)
+ * @param {{x:number,y:number,node:HTMLElement|null}} pt toa do click + the quest (de dong "SMASHED")
  */
 export function handleQuestFeedback(out, quest, pt = { x: innerWidth / 2, y: innerHeight / 2 }) {
   if (!out || !out.ok) {
     if (out && out.alreadyDone) return;
     return;
   }
-  audio.play('tick');
-  if (out.boss) audio.play('boss');
+  const heroId = currentHeroId();
+  const hero = getHero(heroId);
+  const fxOn = (store.state.settings.heroFx || 'full') !== 'off' && !store.state.settings.reducedMotion;
+
+  // ---- 1. Don chien: am thanh dac truyen + hieu ung va cham ----
+  const smashText = pickSmash(heroId);
+  const power = out.boss ? 2 : quest.difficulty === 'epic' ? 1.7 : quest.difficulty === 'hard' ? 1.35 : 1;
+  audio.play(out.boss ? 'smash' : hero.sfx || 'tick');
+  if (out.boss) audio.play('villain');
+  if (fxOn) {
+    playSmash({ x: pt.x, y: pt.y, hero: heroId, text: smashText, power });
+    stampQuest(pt.node, out.boss ? 'JUSTICE SMASH' : 'SMASHED');
+  } else {
+    audio.play('tick');
+  }
   xpFloat(pt.x, pt.y, `+${out.xp} XP`);
-  sparkAt(pt.x, pt.y, getComputedStyle(document.documentElement).getPropertyValue('--success').trim() || '#2fd39a');
+  sparkAt(pt.x, pt.y, heroColor(heroId));
 
   if (out.combo > 1) {
     comboHud(out.combo);
     audio.play('combo');
+    if (fxOn && out.combo >= 3) playBanner(i18n.lang === 'en' ? hero.ultraEn : hero.ultraVi, hero.heroName, heroId);
   }
-  toast({ type: 'success', title: t('toast.questDone', { name: quest.title }), msg: `+${out.xp} XP · +${out.coin} ${t('common.coin')}`, iconName: 'checkCircle' });
+  toast({
+    type: 'success',
+    title: t('toast.questDone', { name: quest.title }),
+    msg: `${smashText} +${out.xp} XP · +${out.coin} ${t('common.coin')}`,
+    iconName: 'checkCircle',
+  });
 
   (out.achievements || []).forEach((ach, i) => {
     setTimeout(() => {
@@ -210,16 +234,42 @@ export function handleQuestFeedback(out, quest, pt = { x: innerWidth / 2, y: inn
 
   if (out.leveledUp) {
     const info = getLevelInfo(store.state);
+    const rank = heroRank(info.level, i18n.lang);
     setTimeout(() => {
-      audio.play('levelUp');
-      levelUpOverlay(info.level, i18n.lang === 'en' ? info.titleEn : info.titleVi);
+      audio.play('rankUp');
+      if (fxOn) {
+        playRankUp({ level: info.level, rank: rank.label, tier: rank.tier, hero: heroId });
+      } else {
+        levelUpOverlay(info.level, rank.label);
+      }
       confettiCannons();
-      toast({ type: 'achievement', title: t('toast.levelUp', { title: info.titleEn }), iconName: 'crown', duration: 4200 });
-    }, 250);
+      toast({
+        type: 'achievement',
+        title: t('toast.levelUp', { title: rank.label }),
+        msg: i18n.lang === 'en' ? hero.aliasEn : hero.aliasVi,
+        iconName: 'crown',
+        duration: 4200,
+      });
+    }, 320);
   }
   if (out.perfect) {
-    setTimeout(() => confetti(innerWidth / 2, innerHeight / 3, 80), 400);
+    setTimeout(() => {
+      confetti(innerWidth / 2, innerHeight / 3, 90);
+      if (fxOn) {
+        audio.play('ultra');
+        playBanner('PERFECT DAY!', i18n.lang === 'en' ? 'You saved the day' : 'Cậu đã cứu cả ngày hôm nay', heroId);
+      }
+    }, 620);
   }
+}
+
+/** id anh hung dang dung (mac dinh: All Might). */
+export function currentHeroId() {
+  return store.state.settings.heroStyle || 'allmight';
+}
+/** Mau nhan cua hero (danh cho tia bua). */
+function heroColor(heroId) {
+  return getHero(heroId).colors.accent;
 }
 
 /* =========================================================================
@@ -241,7 +291,7 @@ export function attachQuestDelegation(container, opts = {}) {
     const action = btn.dataset.action;
     const id = btn.dataset.id;
     const rect = btn.getBoundingClientRect();
-    const pt = { x: rect.left + rect.width / 2, y: rect.top };
+    const pt = { x: rect.left + rect.width / 2, y: rect.top, node: btn.closest('.qcard') };
 
     if (action === 'toggle') {
       const quest = findQuest(store.state, id);
@@ -250,11 +300,15 @@ export function attachQuestDelegation(container, opts = {}) {
       if (done) {
         audio.play('click');
         reopenQuest(id);
+        onNeedRefresh && onNeedRefresh();
       } else {
         const out = completeQuest(id);
         handleQuestFeedback(out, quest, pt);
+        // cho dong "SMASHED" chay xong roi ve lai danh sach (neu ve som no se bi xoa mat)
+        const fxMs = (store.state.settings.heroFx || 'full') === 'off' || store.state.settings.reducedMotion ? 0 : 420;
+        if (fxMs) setTimeout(() => onNeedRefresh && onNeedRefresh(), fxMs);
+        else onNeedRefresh && onNeedRefresh();
       }
-      onNeedRefresh && onNeedRefresh();
     } else if (action === 'edit') {
       const quest = findQuest(store.state, id);
       if (quest && onEdit) onEdit(quest);

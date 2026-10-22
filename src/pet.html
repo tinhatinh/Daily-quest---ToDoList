@@ -11,8 +11,9 @@
     <link rel="stylesheet" href="./styles/tokens.css" />
     <link rel="stylesheet" href="./styles/themes.css" />
     <link rel="stylesheet" href="./styles/pet.css" />
+    <link rel="stylesheet" href="./styles/hero.css" />
   </head>
-  <body>
+  <body class="pet-body">
     <div class="pet-root">
       <!-- Panel to-do mo, dung ben phai man hinh -->
       <section class="flyout" id="flyout" hidden aria-label="To-do nhanh">
@@ -30,43 +31,10 @@
         </div>
       </section>
 
-      <!-- Hiep si 3D (bam de chem + mo to-do, keo de di chuyen) -->
-      <div class="knight" id="knight" role="button" tabindex="0" aria-label="Hiệp sĩ - bấm để mở to-do" title="Bấm để chém & mở To-do">
+      <!-- Anh hung dong hanh (JS ve tuong theo hero dang chon) -->
+      <div class="knight" id="knight" role="button" tabindex="0" aria-label="Hero - bấm để mở to-do" title="Bấm để SMASH & mở To-do">
         <div class="knight__platform"></div>
-        <svg class="knight__fig" viewBox="0 0 120 140" aria-hidden="true">
-          <defs>
-            <linearGradient id="kSteel" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0" stop-color="#eef2fb" />
-              <stop offset="0.55" stop-color="#aeb9d6" />
-              <stop offset="1" stop-color="#5c6a8c" />
-            </linearGradient>
-            <linearGradient id="kPlume" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0" stop-color="#ff6ec7" />
-              <stop offset="1" stop-color="#7c5cff" />
-            </linearGradient>
-            <linearGradient id="kBlade" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0" stop-color="#f4f8ff" />
-              <stop offset="1" stop-color="#9fb6d6" />
-            </linearGradient>
-          </defs>
-          <!-- guom o phia sau -->
-          <g transform="rotate(16 96 70)">
-            <rect x="92" y="16" width="7" height="72" rx="3" fill="url(#kBlade)" stroke="#33406055" />
-            <rect x="82" y="86" width="27" height="7" rx="3" fill="#c99a3a" />
-            <rect x="92" y="93" width="7" height="16" rx="3" fill="#6b4a1f" />
-          </g>
-          <!-- vai -->
-          <path d="M18 132 C18 108 36 98 60 98 C84 98 102 108 102 132 Z" fill="url(#kSteel)" stroke="#33406055" stroke-width="1.5" />
-          <rect x="48" y="86" width="24" height="16" rx="6" fill="#7f8db0" />
-          <!-- nau rua -->
-          <path d="M34 60 C34 34 46 22 60 22 C74 22 86 34 86 60 C86 78 74 90 60 90 C46 90 34 78 34 60 Z" fill="url(#kSteel)" stroke="#33406066" stroke-width="1.5" />
-          <!-- mat na -->
-          <path d="M44 56 h32 v6 a16 16 0 0 1 -32 0 Z" fill="#1b2338" />
-          <rect x="57" y="46" width="6" height="30" rx="2" fill="#1b2338" />
-          <!-- long mao -->
-          <path d="M60 22 C58 8 70 3 84 8 C74 12 70 16 70 24 C66 22 63 22 60 22 Z" fill="url(#kPlume)" />
-          <ellipse cx="50" cy="42" rx="7" ry="11" fill="#ffffff33" />
-        </svg>
+        <div class="pet-hero" id="petHero"></div>
         <div class="slash" id="slash" aria-hidden="true"></div>
         <div class="knight__badge" id="knightBadge" hidden>0</div>
       </div>

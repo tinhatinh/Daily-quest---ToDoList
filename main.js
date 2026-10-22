@@ -36,6 +36,8 @@ const BACKUP_DIR = 'backups';
 const MAX_BACKUPS = 24; // giu toi da N ban backup
 const SCHEME = 'dquest'; // custom scheme de tai renderer
 const HOST = 'app';
+const HERO_DIR = 'heroes'; // thu muc nguoi dung tu bo anh hero (chi dung local)
+const HERO_EXT = /\.(png|jpe?g|webp|gif|avif)$/i;
 
 // Trang thai toan cuc
 let mainWindow = null;
@@ -172,6 +174,36 @@ function dataFile() {
 }
 function backupFolder() {
   return path.join(app.getPath('userData'), BACKUP_DIR);
+}
+
+/* ---------- Thu muc anh hero (nguoi dung tu bo, chi dung tren may ho) ---------- */
+function heroesFolder() {
+  return path.join(app.getPath('userData'), HERO_DIR);
+}
+/** Ten file hop le: khong co duong dan, khong co `..`, dung danh ba rong. */
+function safeHeroName(name) {
+  const base = path.basename(String(name || ''));
+  if (!base || base !== name) return null;
+  if (!/^[\w][\w.\- ]{0,79}$/i.test(base)) return null;
+  if (!HERO_EXT.test(base)) return null;
+  return base;
+}
+function listHeroImages() {
+  try {
+    const dir = heroesFolder();
+    fs.mkdirSync(dir, { recursive: true });
+    return fs
+      .readdirSync(dir)
+      .filter((f) => HERO_EXT.test(f) && fs.statSync(path.join(dir, f)).isFile())
+      .map((f) => ({
+        name: f,
+        key: f.replace(HERO_EXT, '').toLowerCase(), // 'allmight', 'allmight-cheer', ...
+        url: `${SCHEME}://${HOST}/@data/${encodeURIComponent(f)}`,
+        size: fs.statSync(path.join(dir, f)).size,
+      }));
+  } catch (e) {
+    return [];
+  }
 }
 
 function ensureDirs() {
@@ -575,6 +607,24 @@ function registerIpc() {
     }
   });
 
+  // Anh hero (nguoi dung tu bo vao userData/heroes)
+  ipcMain.handle('heroes:list', () => {
+    try {
+      return { ok: true, dir: heroesFolder(), images: listHeroImages() };
+    } catch (e) {
+      return { ok: false, error: String(e && e.message ? e.message : e), dir: heroesFolder(), images: [] };
+    }
+  });
+  ipcMain.handle('heroes:openFolder', async () => {
+    try {
+      fs.mkdirSync(heroesFolder(), { recursive: true });
+      const err = await shell.openPath(heroesFolder());
+      return { ok: !err, path: heroesFolder(), error: err || null };
+    } catch (e) {
+      return { ok: false, error: String(e && e.message ? e.message : e) };
+    }
+  });
+
   // Doc file mau tu examples/
   ipcMain.handle('app:readExample', (_e, name) => {
     try {
@@ -692,6 +742,25 @@ app.whenReady().then(() => {
       let rel = decodeURIComponent(url.pathname);
       if (rel.startsWith('/')) rel = rel.slice(1);
       if (!rel) rel = 'src/index.html';
+
+      // `@data/<file>`: anh hero nguoi dung tu bo trong userData/heroes.
+      // Chi cho phep mot file anh duy nhat, khong cho duong dan con.
+      if (rel.startsWith('@data/')) {
+        const name = safeHeroName(rel.slice('@data/'.length));
+        if (!name) return new Response('Forbidden', { status: 403 });
+        const file = path.join(heroesFolder(), name);
+        if (!fs.existsSync(file)) return new Response('Not found', { status: 404 });
+        const ext = path.extname(file).toLowerCase();
+        const mime = { '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.webp': 'image/webp', '.gif': 'image/gif', '.avif': 'image/avif' }[ext] || 'application/octet-stream';
+        return new Response(fs.readFileSync(file), {
+          headers: {
+            'Content-Type': mime,
+            'Cache-Control': 'no-cache',
+            'Access-Control-Allow-Origin': '*',
+          },
+        });
+      }
+
       const abs = path.normalize(path.join(APP_DIR, rel));
       if (!abs.startsWith(path.normalize(APP_DIR))) {
         return new Response('Forbidden', { status: 403 });

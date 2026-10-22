@@ -7,3 +7,6 @@ npm-debug.log*
 Thumbs.db
 # du lieu electron build tam (neu chay electron-builder)
 .cache/
+# Anh nhân vật có bản quyền không được vào repo / vào file build.
+# Anh hero cua ban de ngoai: %APPDATA%\Daily Quest\heroes\
+src/assets/

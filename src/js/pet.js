@@ -1,12 +1,15 @@
 /*
- * pet.js - LOGIC CUA SO HIEP SI
- * -----------------------------
- * - Hiep si: keo de di chuyen (qua IPC pet:move), bam (khong keo) -> chem +
- *   mo/dong panel to-do. Panel dong bo to-do voi cua so chinh qua IPC relay.
+ * pet.js - LOGIC CUA SO MINI ANH HUNG
+ * ------------------------------------
+ * - Tuong anh hung (ve theo hero dang chon ben app chinh): keo de di chuyen
+ *   (IPC pet:move), bam (khong keo) -> ra don SMASH + mo/dong panel to-do.
+ * - Panel dong bo to-do voi cua so chinh qua IPC relay.
  * - Chi doc/gui qua window.api; KHONG touch fs. Cua so chinh la nguoi ghi file.
  */
 
 import { icon } from './icons.js';
+import { pickSmash } from './heroes.js';
+import { heroPortrait, setHeroVars, applyCustomPalette, playSmash, refreshHeroImages } from './heroArt.js';
 
 const api = window.api;
 const knight = document.getElementById('knight');
@@ -15,19 +18,21 @@ const listEl = document.getElementById('flyList');
 const inputEl = document.getElementById('flyInput');
 const badgeEl = document.getElementById('knightBadge');
 const countEl = document.getElementById('flyCount');
+const heroEl = document.getElementById('petHero');
 
 let todos = [];
 let open = false;
-// Am thanh dong bo tu cai dat app (sound/volume) qua kenh 'theme:state'.
-let audioCfg = { sound: true, volume: 0.5 };
+let heroId = 'allmight';
+// Am thanh + hieu ung dong bo tu cai dat app qua kenh 'theme:state'.
+let audioCfg = { sound: true, volume: 0.5, heroFx: 'full', reducedMotion: false, customAccent: '', customAccent2: '' };
 
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
-/* ---------- Ap dung theme dong bo tu app chinh ---------- */
+/* ---------- Ap dung theme + hero dong bo tu app chinh ---------- */
 function applyAppearance(ap) {
   if (!ap) return;
   const root = document.documentElement;
-  root.setAttribute('data-theme', ap.theme || 'dark');
+  root.setAttribute('data-theme', ap.theme || 'academia');
   root.setAttribute('data-accent', ap.accent || 'violet');
   if (ap.accent === 'custom') {
     root.style.setProperty('--custom-accent', ap.customAccent || '#7c5cff');
@@ -40,6 +45,28 @@ function applyAppearance(ap) {
   document.body.classList.toggle('reduced-motion', !!ap.reducedMotion);
   if (typeof ap.sound === 'boolean') audioCfg.sound = ap.sound;
   if (typeof ap.volume === 'number') audioCfg.volume = ap.volume;
+  audioCfg.heroFx = ap.heroFx || 'full';
+  audioCfg.reducedMotion = !!ap.reducedMotion;
+  audioCfg.customAccent = ap.customAccent;
+  audioCfg.customAccent2 = ap.customAccent2;
+
+  // Bang mau + tuong anh hung
+  const next = ap.heroStyle || 'allmight';
+  if (next === 'custom') applyCustomPalette(ap.customAccent, ap.customAccent2, root);
+  else setHeroVars(next, root);
+  root.setAttribute('data-hero', next === 'custom' ? 'allmight' : next);
+  heroId = next;
+  // heroArt doc cua so nay de biet co duoc phep hieu ung khong
+  window.DQ_SETTINGS = { heroStyle: next, heroFx: audioCfg.heroFx, reducedMotion: audioCfg.reducedMotion };
+  paintHero();
+}
+
+/** Ve lai tuong anh hung theo so viec con lai. */
+function paintHero() {
+  if (!heroEl) return;
+  const openCount = todos.filter((x) => !x.done).length;
+  const mood = openCount === 0 ? 'cheer' : openCount >= 5 ? 'serious' : 'idle';
+  heroEl.innerHTML = heroPortrait(heroId, { size: 104, mood });
 }
 
 /* ---------- Render ---------- */
@@ -62,6 +89,7 @@ function render() {
         )
         .join('')
     : `<li class="pf-empty">Chưa có to-do nào. Thêm bên dưới ↓</li>`;
+  paintHero();
 }
 
 /* ---------- Mo / dong flyout ---------- */
@@ -74,7 +102,7 @@ function setOpen(v) {
   if (v) setTimeout(() => inputEl && inputEl.focus(), 80);
 }
 
-/* ---------- Am thanh "chem" ---------- */
+/* ---------- Am thanh "SMASH" ---------- */
 let actx = null;
 function sfx() {
   if (!audioCfg.sound) return; // ton trong tat/bat am thanh trong Cai dat
@@ -83,20 +111,38 @@ function sfx() {
   try {
     actx = actx || new (window.AudioContext || window.webkitAudioContext)();
     if (actx.state === 'suspended') actx.resume();
+    const t = actx.currentTime;
+    // 1) tieng tram (body cua don danh)
     const o = actx.createOscillator();
     const g = actx.createGain();
-    const t = actx.currentTime;
-    const peak = Math.max(0.0001, 0.35 * vol); // nhe va theo âm lượng app
     o.type = 'sawtooth';
-    o.frequency.setValueAtTime(950, t);
-    o.frequency.exponentialRampToValueAtTime(170, t + 0.18);
+    o.frequency.setValueAtTime(320, t);
+    o.frequency.exponentialRampToValueAtTime(48, t + 0.22);
     g.gain.setValueAtTime(0.0001, t);
-    g.gain.exponentialRampToValueAtTime(peak, t + 0.012);
-    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.2);
+    g.gain.exponentialRampToValueAtTime(Math.max(0.0001, 0.4 * vol), t + 0.012);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.26);
     o.connect(g);
     g.connect(actx.destination);
     o.start(t);
-    o.stop(t + 0.22);
+    o.stop(t + 0.3);
+    // 2) bot gio (impact hiss)
+    const dur = 0.14;
+    const frames = Math.floor(actx.sampleRate * dur);
+    const buf = actx.createBuffer(1, frames, actx.sampleRate);
+    const data = buf.getChannelData(0);
+    for (let i = 0; i < frames; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / frames);
+    const src = actx.createBufferSource();
+    src.buffer = buf;
+    const ng = actx.createGain();
+    ng.gain.value = 0.28 * vol;
+    const hp = actx.createBiquadFilter();
+    hp.type = 'bandpass';
+    hp.frequency.setValueAtTime(2400, t);
+    hp.frequency.exponentialRampToValueAtTime(300, t + dur);
+    src.connect(hp);
+    hp.connect(ng);
+    ng.connect(actx.destination);
+    src.start(t);
   } catch (e) {}
 }
 
@@ -105,6 +151,14 @@ function slash() {
   void knight.offsetWidth; // reset animation
   knight.classList.add('slashing');
   sfx();
+  const r = knight.getBoundingClientRect();
+  playSmash({
+    x: r.left + r.width / 2,
+    y: r.top + r.height * 0.42,
+    hero: heroId,
+    text: pickSmash(heroId),
+    power: 1,
+  });
   setTimeout(() => knight.classList.remove('slashing'), 460);
 }
 
@@ -183,10 +237,15 @@ api.on('todos:state', (payload) => {
   todos = Array.isArray(payload) ? payload : [];
   render();
 });
-api.on('theme:state', (ap) => applyAppearance(ap));
+api.on('theme:state', (ap) => {
+  applyAppearance(ap);
+  // anh that (neu co) nam o thu muc cuc bo -> kiem tra lai khi app dong bo
+  refreshHeroImages().then(paintHero);
+});
 
-// lan dau xin danh sach to-do
+// lan dau xin to-do + anh hero
 render();
+refreshHeroImages().then(paintHero);
 try {
   api.requestTodos();
 } catch (e) {}

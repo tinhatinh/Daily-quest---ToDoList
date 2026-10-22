@@ -1,7 +1,8 @@
 /*
  * pages/onboarding.js - HUONG DAN LAN DAU
  * ---------------------------------------
- * Overlay toan man hinh 3 buoc: (1) ten + (2) avatar + (3) theme & nap mau.
+ * Overlay toan man hinh 4 buoc: (1) ten + (2) chon anh hung dong hanh +
+ * (3) avatar + (4) theme & nap mau.
  * Xong -> gan profile/settings, (tuy chon) nap 8 quest + 6 su kien mau,
  * dat onboardingDone=true, luu va goi onDone de app hien UI chinh.
  */
@@ -9,13 +10,15 @@
 import { store } from '../store.js';
 import { applyTheme } from '../theme.js';
 import { AVATARS, THEMES, SAMPLE_QUESTS, SAMPLE_SCHEDULE } from '../constants.js';
+import { HEROES } from '../heroes.js';
+import { heroPortrait } from '../heroArt.js';
 import { escapeHtml } from '../utils.js';
 import { icon } from '../icons.js';
 import { t, i18n } from '../i18n.js';
 import { audio } from '../audio.js';
 
 // Mac dinh de TRONG: nguoi dung tu them quest/lich trinh cua minh.
-const draft = { name: '', avatar: AVATARS[0], theme: 'dark', loadSample: false };
+const draft = { name: '', avatar: AVATARS[0], theme: 'academia', hero: 'allmight', loadSample: false };
 
 /** Hien onboarding neu chua xong. */
 export function maybeShowOnboarding(onDone) {
@@ -34,7 +37,7 @@ function render(step, onDone) {
     overlay.className = 'onboard';
     document.body.appendChild(overlay);
   }
-  const steps = 3;
+  const steps = 4;
   const dots = Array.from({ length: steps }, (_, i) => `<div class="onboard__step ${i === step ? 'is-active' : ''}"></div>`).join('');
 
   let inner = '';
@@ -50,6 +53,21 @@ function render(step, onDone) {
         <input class="input" id="ob-name" placeholder="${escapeHtml(t('ob.namePh'))}" value="${escapeHtml(draft.name)}" maxlength="30" />
       </div>`;
   } else if (step === 1) {
+    inner = `
+      <div class="onboard__title" style="font-size:var(--fs-700)">${t('hero.pickTitle')}</div>
+      <div class="onboard__sub" style="margin-bottom:6px">${t('hero.styleHint')}</div>
+      <div class="hero-picker hero-picker--ob">
+        ${Object.values(HEROES)
+          .map(
+            (h) => `<button type="button" class="hero-card ${draft.hero === h.id ? 'is-active' : ''}" data-hero="${h.id}" style="--hc:${h.colors.accent}">
+              ${heroPortrait(h.id, { size: 78, mood: draft.hero === h.id ? 'cheer' : 'idle' })}
+              <div class="hero-card__name">${escapeHtml(i18n.lang === 'en' ? h.en : h.vi)}</div>
+              <div class="hero-card__alias">${escapeHtml(i18n.lang === 'en' ? h.aliasEn : h.aliasVi)}</div>
+            </button>`
+          )
+          .join('')}
+      </div>`;
+  } else if (step === 2) {
     inner = `
       <div class="onboard__title" style="font-size:var(--fs-700)">${t('ob.avatar')}</div>
       <div class="avatar-picker">
@@ -93,6 +111,13 @@ function render(step, onDone) {
       audio.play('click');
     })
   );
+  overlay.querySelectorAll('[data-hero]').forEach((b) =>
+    b.addEventListener('click', () => {
+      draft.hero = b.dataset.hero;
+      overlay.querySelectorAll('[data-hero]').forEach((x) => x.classList.toggle('is-active', x === b));
+      audio.play('ultra');
+    })
+  );
   overlay.querySelectorAll('[data-theme]').forEach((b) =>
     b.addEventListener('click', () => {
       draft.theme = b.dataset.theme;
@@ -116,7 +141,7 @@ function render(step, onDone) {
       draft.name = (nameInput ? nameInput.value : draft.name).trim() || (i18n.lang === 'en' ? 'Hero' : 'Anh hùng');
     }
     audio.play('click');
-    if (step < 2) render(step + 1, onDone);
+    if (step < steps - 1) render(step + 1, onDone);
     else finish(onDone);
   }
 }
@@ -129,6 +154,7 @@ function finish(onDone) {
       d.profile.avatar = draft.avatar;
       d.profile.createdAt = Date.now();
       d.settings.theme = draft.theme;
+      d.settings.heroStyle = draft.hero;
       d.onboardingDone = true;
       if (draft.loadSample) {
         d.quests = SAMPLE_QUESTS.map((q, i) => ({

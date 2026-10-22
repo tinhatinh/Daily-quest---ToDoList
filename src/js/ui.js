@@ -323,6 +323,10 @@ export function confettiCannons() {
 export function sparkAt(x, y, color) {
   fx.spark(x, y, color);
 }
+/** Doi bang mau hat confetti theo phong cach anh hung dang dung. */
+export function setFxPalette(colors) {
+  if (Array.isArray(colors) && colors.length) fx.palette = colors;
+}
 
 /** Overlay LEVEL UP!. */
 export function levelUpOverlay(level, titleText) {

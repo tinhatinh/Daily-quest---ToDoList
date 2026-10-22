@@ -27,6 +27,7 @@
       "main.js",
       "preload.js",
       "src/**/*",
+      "!src/assets/**",
       "examples/**/*",
       "package.json"
     ],

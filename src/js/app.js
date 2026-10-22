@@ -13,6 +13,8 @@ import { audio } from './audio.js';
 import { applyTheme } from './theme.js';
 import { scheduler } from './scheduler.js';
 import { topStatsHtml } from './components.js';
+import { uaCrest, heroPortrait, refreshHeroImages } from './heroArt.js';
+import { getHero, heroLine } from './heroes.js';
 import { openQuestForm } from './questForm.js';
 import { openFocus } from './focus.js';
 import {
@@ -51,11 +53,19 @@ function renderHeader() {
   if (host) host.innerHTML = topStatsHtml(store.state);
 }
 
+/** Huy hieu UA thay logo mac dinh (mau theo hero). */
+function paintBrandCrest() {
+  const host = document.getElementById('brandLogo');
+  if (host) host.innerHTML = uaCrest(30);
+}
+
 /** Bo trich cac thong so hinh thuc de dong bo sang cua so hiep si. */
 function appearanceOf(s) {
   return {
     theme: s.theme,
     accent: s.accent,
+    heroStyle: s.heroStyle || 'allmight',
+    heroFx: s.heroFx || 'full',
     customAccent: s.customAccent,
     customAccent2: s.customAccent2,
     reducedMotion: s.reducedMotion,
@@ -192,13 +202,16 @@ function showDailyReport(prevDay) {
   const prevPrev = store.state.dayRecords[addDaysKey(prevDay, -1)];
   const xpDelta = (rec.xpEarned || 0) - (prevPrev ? prevPrev.xpEarned || 0 : 0);
   const doneCount = Object.values(rec.quests || {}).filter((q) => q.done).length;
+  const heroId = store.state.settings.heroStyle || 'allmight';
+  const hero = getHero(heroId);
   const body = document.createElement('div');
   body.className = 'stack gap-4';
   body.innerHTML = `
     <div class="row center" style="gap:12px">
-      <div class="level-avatar" style="width:56px;height:56px;font-size:22px;background:var(--grad-xp)">${store.state.profile.avatar || '🦊'}</div>
+      <div class="report-portrait">${heroPortrait(heroId, { size: 76, mood: 'cheer' })}</div>
       <div style="text-align:left">
-        <div style="font-size:var(--fs-500);font-weight:800">${escapeLite(pick(ENCOURAGEMENT.allDone.concat(ENCOURAGEMENT.evening)))}</div>
+        <div class="hero-nameplate" style="margin-bottom:6px">${icon('badge', { size: 12 })}<span>${escapeLite(hero.heroName)}</span></div>
+        <div style="font-size:var(--fs-500);font-weight:800">${escapeLite(heroLine(heroId, 'allDone') || pick(ENCOURAGEMENT.allDone))}</div>
         <div class="muted" style="font-size:var(--fs-200)">${escapeLite(prevDay)}</div>
       </div>
     </div>
@@ -293,6 +306,8 @@ async function boot() {
   }
 
   i18n.setLang(store.state.settings.language);
+  // Anh hero that (neu nguoi dung co bo vao userData/heroes) -> nap truoc khi ve UI
+  await refreshHeroImages();
   applyTheme(store.state);
   window.api.setMinimizeToTray(store.state.settings.minimizeToTray);
   if (store.state.settings.startOnBoot) window.api.setAutoStart(true);
@@ -302,6 +317,7 @@ async function boot() {
   router.renderNav();
 
   renderHeader();
+  paintBrandCrest();
   store.subscribe(() => {
     renderHeader();
     router.notifyState(store.state);
